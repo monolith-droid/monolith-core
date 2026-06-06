@@ -1,0 +1,12 @@
+{
+  "branch_id": "synthetic-oss-maintainer-branch",
+  "source_index_refs": ["synthetic-core-index"],
+  "card_refs": ["card-agent-memory", "card-branch-return"],
+  "findings": [
+    {
+      "finding_id": "finding-context-recovery",
+      "status": "promote_to_core_candidate",
+      "summary": "A maintainer workflow needs a reusable context pack before the agent starts issue triage or release preparation."
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "pack_id": "context-pack-monolith-core-mvp",
+  "purpose": "Recover the public MONOLITH Core MVP context for an agent.",
+  "card_ids": ["card-agent-memory", "card-branch-return"]
+}

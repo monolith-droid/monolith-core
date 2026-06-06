@@ -1,0 +1,15 @@
+{
+  "index_id": "synthetic-core-index",
+  "entries": [
+    {
+      "card_id": "card-agent-memory",
+      "path": "cards/card-agent-memory.json",
+      "tags": ["agent-memory", "obsidian", "context-recovery"]
+    },
+    {
+      "card_id": "card-branch-return",
+      "path": "cards/card-branch-return.json",
+      "tags": ["branch-return", "knowledge-index", "curation"]
+    }
+  ]
+}

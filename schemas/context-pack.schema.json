@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MONOLITH Core Context Pack",
+  "type": "object",
+  "required": ["pack_id", "purpose", "card_ids"],
+  "additionalProperties": false,
+  "properties": {
+    "pack_id": { "type": "string", "minLength": 1 },
+    "purpose": { "type": "string", "minLength": 1 },
+    "card_ids": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "uniqueItems": true
+    }
+  }
+}

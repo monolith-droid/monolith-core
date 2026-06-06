@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MONOLITH Core Branch Return Report",
+  "type": "object",
+  "required": ["branch_id", "source_index_refs", "card_refs", "findings"],
+  "additionalProperties": false,
+  "properties": {
+    "branch_id": { "type": "string", "minLength": 1 },
+    "source_index_refs": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "card_refs": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "findings": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["finding_id", "status", "summary"],
+        "additionalProperties": false,
+        "properties": {
+          "finding_id": { "type": "string", "minLength": 1 },
+          "status": { "type": "string", "minLength": 1 },
+          "summary": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}
