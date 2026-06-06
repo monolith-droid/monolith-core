@@ -33,5 +33,10 @@ classifiers = [
 [project.scripts]
 monolith-core = "monolith_core.cli:main"
 
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0"
+]
+
 [tool.setuptools.packages.find]
 where = ["src"]
