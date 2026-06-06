@@ -8,6 +8,7 @@ from monolith_core.cli import main, validate_root
 
 
 ROOT = Path("examples/synthetic-vault")
+DOCS = Path("docs")
 
 
 def test_validate_root_passes_for_synthetic_vault() -> None:
@@ -43,6 +44,16 @@ def test_invalid_card_id_fails_validation(tmp_path: Path) -> None:
 
     code = main(["validate", "--root", str(fixture)])
     assert code == 1
+
+
+def test_obsidian_workflow_docs_preserve_public_boundary() -> None:
+    body = (DOCS / "obsidian-workflow.md").read_text(encoding="utf-8")
+    assert "examples/synthetic-vault/" in body
+    assert "card-agent-memory" in body
+    assert "index-synthetic-core" in body
+    assert "pack-monolith-core-mvp" in body
+    assert "Private Adapter Boundary" in body
+    assert "Public MONOLITH Core should remain useful without any private data" in body
 
 
 def test_pack_command_passes() -> None:

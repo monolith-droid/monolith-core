@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.2 - 2026-06-06
+
+- Add a public-safe Obsidian workflow guide.
+- Document a synthetic vault layout for cards, indexes, context packs, and
+  branch-return reports.
+- Clarify where private adapters begin for real vaults, Drive sync, schedulers,
+  external models, notifications, and user-specific paths.
+
 ## 0.1.1 - 2026-06-06
 
 - Add stable id conventions for cards, indexes, context packs, branch returns,
