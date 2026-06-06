@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0 - Unreleased
+## 0.1.0 - 2026-06-06
 
 - Add initial public-safe MONOLITH Core scaffold.
 - Add synthetic vault fixtures for knowledge cards, index, context pack, and
