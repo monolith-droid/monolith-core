@@ -5,7 +5,10 @@
   "required": ["card_id", "title", "summary", "tags", "source_refs"],
   "additionalProperties": false,
   "properties": {
-    "card_id": { "type": "string", "minLength": 1 },
+    "card_id": {
+      "type": "string",
+      "pattern": "^card-[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
     "title": { "type": "string", "minLength": 1 },
     "summary": { "type": "string", "minLength": 1 },
     "tags": {

@@ -5,16 +5,25 @@
   "required": ["branch_id", "source_index_refs", "card_refs", "findings"],
   "additionalProperties": false,
   "properties": {
-    "branch_id": { "type": "string", "minLength": 1 },
+    "branch_id": {
+      "type": "string",
+      "pattern": "^branch-[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
     "source_index_refs": {
       "type": "array",
-      "items": { "type": "string", "minLength": 1 },
+      "items": {
+        "type": "string",
+        "pattern": "^index-[a-z0-9]+(?:-[a-z0-9]+)*$"
+      },
       "minItems": 1,
       "uniqueItems": true
     },
     "card_refs": {
       "type": "array",
-      "items": { "type": "string", "minLength": 1 },
+      "items": {
+        "type": "string",
+        "pattern": "^card-[a-z0-9]+(?:-[a-z0-9]+)*$"
+      },
       "minItems": 1,
       "uniqueItems": true
     },
@@ -26,7 +35,10 @@
         "required": ["finding_id", "status", "summary"],
         "additionalProperties": false,
         "properties": {
-          "finding_id": { "type": "string", "minLength": 1 },
+          "finding_id": {
+            "type": "string",
+            "pattern": "^finding-[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
           "status": { "type": "string", "minLength": 1 },
           "summary": { "type": "string", "minLength": 1 }
         }
