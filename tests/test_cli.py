@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+import shutil
 from pathlib import Path
 
 from monolith_core.cli import main, validate_root
@@ -13,6 +15,34 @@ def test_validate_root_passes_for_synthetic_vault() -> None:
     assert result["passed"] is True
     assert result["card_count"] == 2
     assert result["blockers"] == []
+
+
+def test_synthetic_fixture_uses_stable_id_prefixes() -> None:
+    result = validate_root(ROOT)
+    assert result["status"] == "valid"
+
+    index = json.loads((ROOT / "index.json").read_text(encoding="utf-8"))
+    context_pack = json.loads((ROOT / "context-pack.json").read_text(encoding="utf-8"))
+    branch_return = json.loads((ROOT / "branch-return.json").read_text(encoding="utf-8"))
+
+    assert index["index_id"] == "index-synthetic-core"
+    assert context_pack["pack_id"] == "pack-monolith-core-mvp"
+    assert branch_return["branch_id"] == "branch-synthetic-oss-maintainer"
+    assert all(entry["card_id"].startswith("card-") for entry in index["entries"])
+    assert all(card_id.startswith("card-") for card_id in context_pack["card_ids"])
+    assert all(card_id.startswith("card-") for card_id in branch_return["card_refs"])
+
+
+def test_invalid_card_id_fails_validation(tmp_path: Path) -> None:
+    fixture = tmp_path / "synthetic-vault"
+    shutil.copytree(ROOT, fixture)
+    card_path = fixture / "cards" / "card-agent-memory.json"
+    card = json.loads(card_path.read_text(encoding="utf-8"))
+    card["card_id"] = "Card_AgentMemory"
+    card_path.write_text(json.dumps(card), encoding="utf-8")
+
+    code = main(["validate", "--root", str(fixture)])
+    assert code == 1
 
 
 def test_pack_command_passes() -> None:

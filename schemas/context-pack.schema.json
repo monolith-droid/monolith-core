@@ -5,11 +5,17 @@
   "required": ["pack_id", "purpose", "card_ids"],
   "additionalProperties": false,
   "properties": {
-    "pack_id": { "type": "string", "minLength": 1 },
+    "pack_id": {
+      "type": "string",
+      "pattern": "^pack-[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
     "purpose": { "type": "string", "minLength": 1 },
     "card_ids": {
       "type": "array",
-      "items": { "type": "string", "minLength": 1 },
+      "items": {
+        "type": "string",
+        "pattern": "^card-[a-z0-9]+(?:-[a-z0-9]+)*$"
+      },
       "minItems": 1,
       "uniqueItems": true
     }

@@ -1,6 +1,6 @@
 {
-  "branch_id": "synthetic-oss-maintainer-branch",
-  "source_index_refs": ["synthetic-core-index"],
+  "branch_id": "branch-synthetic-oss-maintainer",
+  "source_index_refs": ["index-synthetic-core"],
   "card_refs": ["card-agent-memory", "card-branch-return"],
   "findings": [
     {

@@ -33,6 +33,9 @@ small, inspectable structure that records what the agent should know next time:
 - **Hermes-style curator**: a periodic, report-only loop that proposes updates
   without silently mutating private knowledge.
 
+See [ID conventions](docs/id-conventions.md) for the stable card, index, and
+context-pack id rules.
+
 ## Quick Start
 
 ```bash
@@ -58,6 +61,7 @@ For side-effect control, pair this project with
 ## Roadmap
 
 - `v0.1.0`: schemas, synthetic vault, validation CLI, branch-return check.
+- `v0.1.1`: stable id conventions for cards, indexes, and context packs.
 - `v0.2.0`: richer context-pack scoring and stale-card detection.
 - `v0.3.0`: adapter guide for local Obsidian vaults without private data leaks.
 - `v1.0.0`: stable card/index/context-pack contracts.

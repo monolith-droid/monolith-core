@@ -5,7 +5,10 @@
   "required": ["index_id", "entries"],
   "additionalProperties": false,
   "properties": {
-    "index_id": { "type": "string", "minLength": 1 },
+    "index_id": {
+      "type": "string",
+      "pattern": "^index-[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
     "entries": {
       "type": "array",
       "minItems": 1,
@@ -14,7 +17,10 @@
         "required": ["card_id", "path", "tags"],
         "additionalProperties": false,
         "properties": {
-          "card_id": { "type": "string", "minLength": 1 },
+          "card_id": {
+            "type": "string",
+            "pattern": "^card-[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
           "path": { "type": "string", "minLength": 1 },
           "tags": {
             "type": "array",

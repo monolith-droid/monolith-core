@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.1 - 2026-06-06
+
+- Add stable id conventions for cards, indexes, context packs, branch returns,
+  and findings.
+- Validate public id prefixes and lowercase hyphenated id shapes in the CLI.
+- Add schema patterns and tests that protect the id convention.
+
 ## 0.1.0 - 2026-06-06
 
 - Add initial public-safe MONOLITH Core scaffold.
