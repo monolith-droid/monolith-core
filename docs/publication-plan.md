@@ -15,11 +15,19 @@ This project should become a separate public repository:
 - No private adapters, no Drive connection, no scheduler authority, no external
   model calls, no notification publishing.
 
+## v0.1 Follow-Up
+
+- `v0.1.1`: stable id conventions for cards, indexes, context packs, branch
+  returns, and findings.
+- `v0.1.2`: public-safe Obsidian workflow guide that explains vault layout while
+  keeping real vault discovery and mutation in private adapters.
+
 ## First Issues
 
 1. Define stable card and index ids.
 2. Add stale-card detection to curator dry-run output.
-3. Add a public-safe Obsidian workflow guide.
+3. Add adapter examples that convert synthetic Obsidian-style notes into the
+   public JSON contracts.
 4. Add richer context-pack scoring.
 5. Add downstream dogfooding notes from private adapters without private data.
 
