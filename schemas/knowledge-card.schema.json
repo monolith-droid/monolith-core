@@ -22,6 +22,14 @@
       "items": { "type": "string", "minLength": 1 },
       "minItems": 1,
       "uniqueItems": true
+    },
+    "last_reviewed": {
+      "type": "string",
+      "format": "date"
+    },
+    "review_interval_days": {
+      "type": "integer",
+      "minimum": 1
     }
   }
 }

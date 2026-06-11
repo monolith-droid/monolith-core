@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0 - 2026-06-11
+
+- Add a public-safe memory scorecard schema and synthetic fixture.
+- Add `monolith-core score` for report-only memory health checks.
+- Score index coverage, context-pack completeness, provenance coverage,
+  branch-return coverage, and stale-card detection.
+- Add synthetic freshness metadata to knowledge cards.
+
 ## 0.1.2 - 2026-06-06
 
 - Add a public-safe Obsidian workflow guide.

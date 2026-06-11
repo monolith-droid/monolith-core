@@ -46,6 +46,7 @@ python -m pip install -e .
 monolith-core validate --root examples/synthetic-vault
 monolith-core pack --index examples/synthetic-vault/index.json --pack examples/synthetic-vault/context-pack.json
 monolith-core branch-return-check --report examples/synthetic-vault/branch-return.json
+monolith-core score --root examples/synthetic-vault --as-of 2026-06-11
 monolith-core curate-dry-run --root examples/synthetic-vault --out reports/curator-report.json
 ```
 
@@ -66,6 +67,6 @@ For side-effect control, pair this project with
 - `v0.1.0`: schemas, synthetic vault, validation CLI, branch-return check.
 - `v0.1.1`: stable id conventions for cards, indexes, and context packs.
 - `v0.1.2`: public-safe Obsidian workflow guide.
-- `v0.2.0`: richer context-pack scoring and stale-card detection.
+- `v0.2.0`: memory scorecard, context-pack scoring, and stale-card detection.
 - `v0.3.0`: adapter guide for local Obsidian vaults without private data leaks.
 - `v1.0.0`: stable card/index/context-pack contracts.

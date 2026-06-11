@@ -1,0 +1,83 @@
+{
+  "scorecard_id": "scorecard-synthetic-core",
+  "passed": true,
+  "status": "scorecard_ready",
+  "mode": "report_only",
+  "mutation_performed": false,
+  "root": "examples/synthetic-vault",
+  "as_of": "2026-06-11",
+  "overall_score": 100.0,
+  "score_count": 5,
+  "low_score_count": 0,
+  "scores": [
+    {
+      "score_id": "score-index-coverage",
+      "title": "Index Coverage",
+      "score": 100.0,
+      "threshold": 100.0,
+      "status": "pass",
+      "source_refs": ["index.json", "cards/*.json"],
+      "evidence": {
+        "indexed_known_card_count": 2,
+        "card_count": 2
+      },
+      "next_action": "Add every public-safe card to the knowledge index."
+    },
+    {
+      "score_id": "score-context-pack-completeness",
+      "title": "Context Pack Completeness",
+      "score": 100.0,
+      "threshold": 90.0,
+      "status": "pass",
+      "source_refs": ["context-pack.json", "cards/*.json"],
+      "evidence": {
+        "packed_known_card_count": 2,
+        "card_count": 2
+      },
+      "next_action": "Refresh the context pack so the agent can recover the full task context."
+    },
+    {
+      "score_id": "score-provenance-coverage",
+      "title": "Provenance Coverage",
+      "score": 100.0,
+      "threshold": 100.0,
+      "status": "pass",
+      "source_refs": ["cards/*.json"],
+      "evidence": {
+        "cards_with_source_refs": 2,
+        "card_count": 2
+      },
+      "next_action": "Add synthetic source references before promoting a card to shared memory."
+    },
+    {
+      "score_id": "score-branch-return-coverage",
+      "title": "Branch Return Coverage",
+      "score": 100.0,
+      "threshold": 90.0,
+      "status": "pass",
+      "source_refs": ["branch-return.json", "cards/*.json"],
+      "evidence": {
+        "branch_return_known_card_count": 2,
+        "card_count": 2
+      },
+      "next_action": "Link branch findings back to the core card set."
+    },
+    {
+      "score_id": "score-stale-card-detection",
+      "title": "Stale Card Detection",
+      "score": 100.0,
+      "threshold": 100.0,
+      "status": "pass",
+      "source_refs": ["cards/*.json"],
+      "evidence": {
+        "cards_with_freshness_metadata": 2,
+        "card_count": 2,
+        "as_of": "2026-06-11",
+        "stale_cards": []
+      },
+      "next_action": "Add last_reviewed and review_interval_days to every card."
+    }
+  ],
+  "blockers": [],
+  "warnings": []
+}

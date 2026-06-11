@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import dataclass
+from datetime import date
 from pathlib import Path
 from typing import Any
 
@@ -14,6 +15,8 @@ ID_PREFIXES = {
     "pack_id": "pack-",
     "branch_id": "branch-",
     "finding_id": "finding-",
+    "scorecard_id": "scorecard-",
+    "score_id": "score-",
 }
 
 
@@ -64,6 +67,27 @@ def require_string_list(value: dict[str, Any], key: str, path: Path) -> list[str
     return item
 
 
+def optional_date(value: dict[str, Any], key: str, path: Path) -> date | None:
+    item = value.get(key)
+    if item is None:
+        return None
+    if not isinstance(item, str) or not item.strip():
+        raise ValidationError(f"{path}: {key} must be an ISO date string")
+    try:
+        return date.fromisoformat(item)
+    except ValueError as exc:
+        raise ValidationError(f"{path}: {key} must use YYYY-MM-DD") from exc
+
+
+def optional_positive_int(value: dict[str, Any], key: str, path: Path) -> int | None:
+    item = value.get(key)
+    if item is None:
+        return None
+    if not isinstance(item, int) or item <= 0:
+        raise ValidationError(f"{path}: {key} must be a positive integer")
+    return item
+
+
 @dataclass(frozen=True)
 class KnowledgeCard:
     card_id: str
@@ -71,6 +95,8 @@ class KnowledgeCard:
     summary: str
     tags: list[str]
     source_refs: list[str]
+    last_reviewed: date | None
+    review_interval_days: int | None
     path: Path
 
 
@@ -82,6 +108,8 @@ def load_card(path: Path) -> KnowledgeCard:
         summary=require_string(value, "summary", path),
         tags=require_string_list(value, "tags", path),
         source_refs=require_string_list(value, "source_refs", path),
+        last_reviewed=optional_date(value, "last_reviewed", path),
+        review_interval_days=optional_positive_int(value, "review_interval_days", path),
         path=path,
     )
 
