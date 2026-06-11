@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.5 - 2026-06-11
+
+- Add `monolith-core validation-summary` for compact report-only validation
+  counts, blockers, and next actions.
+- Add validation summary schema and synthetic fixture.
+
 ## 0.2.4 - 2026-06-11
 
 - Add `monolith-core context-pack-diff` for report-only comparisons between

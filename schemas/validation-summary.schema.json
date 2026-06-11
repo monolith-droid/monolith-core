@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MONOLITH Core Validation Summary",
+  "type": "object",
+  "required": [
+    "summary_id",
+    "passed",
+    "status",
+    "mode",
+    "mutation_performed",
+    "root",
+    "source_status",
+    "source_passed",
+    "counts",
+    "blocker_count",
+    "blockers",
+    "next_actions",
+    "warnings"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "summary_id": {
+      "type": "string",
+      "pattern": "^summary-[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "passed": { "type": "boolean" },
+    "status": {
+      "type": "string",
+      "enum": ["validation_summary_ready"]
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["report_only"]
+    },
+    "mutation_performed": { "type": "boolean", "const": false },
+    "root": { "type": "string", "minLength": 1 },
+    "source_status": { "type": "string", "minLength": 1 },
+    "source_passed": { "type": "boolean" },
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "card_count": { "type": "integer", "minimum": 0 },
+        "index_entry_count": { "type": "integer", "minimum": 0 },
+        "context_pack_card_count": { "type": "integer", "minimum": 0 },
+        "branch_return_finding_count": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "blocker_count": { "type": "integer", "minimum": 0 },
+    "blockers": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "next_actions": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1
+    },
+    "warnings": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}
