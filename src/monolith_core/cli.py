@@ -111,6 +111,52 @@ def run_pack(args: argparse.Namespace) -> int:
     return 0 if not blockers else 1
 
 
+def context_pack_diff_report(base_path: Path, candidate_path: Path) -> dict[str, Any]:
+    base = load_context_pack(base_path)
+    candidate = load_context_pack(candidate_path)
+    base_ids = set(base["card_ids"])
+    candidate_ids = set(candidate["card_ids"])
+    added = sorted(candidate_ids - base_ids)
+    removed = sorted(base_ids - candidate_ids)
+    unchanged = sorted(base_ids & candidate_ids)
+    changed = bool(added or removed)
+    return {
+        "diff_id": "diff-synthetic-context-pack",
+        "passed": True,
+        "status": "context_pack_changed" if changed else "context_pack_unchanged",
+        "mode": "report_only",
+        "mutation_performed": False,
+        "base_pack": {
+            "path": _public_path(base_path),
+            "pack_id": base["pack_id"],
+            "card_count": len(base["card_ids"]),
+        },
+        "candidate_pack": {
+            "path": _public_path(candidate_path),
+            "pack_id": candidate["pack_id"],
+            "card_count": len(candidate["card_ids"]),
+        },
+        "added_card_ids": added,
+        "removed_card_ids": removed,
+        "unchanged_card_ids": unchanged,
+        "added_count": len(added),
+        "removed_count": len(removed),
+        "unchanged_count": len(unchanged),
+        "blockers": [],
+        "warnings": [],
+    }
+
+
+def run_context_pack_diff(args: argparse.Namespace) -> int:
+    report = context_pack_diff_report(Path(args.base), Path(args.candidate))
+    if args.out:
+        out = Path(args.out)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    _print_json(report)
+    return 0
+
+
 def run_branch_return_check(args: argparse.Namespace) -> int:
     report = load_branch_return(Path(args.report))
     blockers = []
@@ -672,6 +718,12 @@ def build_parser() -> argparse.ArgumentParser:
     pack.add_argument("--index", required=True)
     pack.add_argument("--pack", required=True)
     pack.set_defaults(func=run_pack)
+
+    diff = subcommands.add_parser("context-pack-diff", help="Compare two public context-pack fixtures report-only.")
+    diff.add_argument("--base", required=True)
+    diff.add_argument("--candidate", required=True)
+    diff.add_argument("--out")
+    diff.set_defaults(func=run_context_pack_diff)
 
     branch = subcommands.add_parser("branch-return-check", help="Validate a branch-return report.")
     branch.add_argument("--report", required=True)

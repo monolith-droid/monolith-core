@@ -62,12 +62,27 @@
         "context-pack.json",
         "docs/memory-scorecard.md"
       ],
-      "status": "candidate",
+      "status": "adopted",
       "public_safety": "synthetic",
       "impact": 4,
       "effort": 3,
       "confidence": 4,
-      "next_action": "Add a report-only context-pack diff fixture and CLI."
+      "next_action": "Use context-pack-diff before promoting context-pack changes."
+    },
+    {
+      "idea_id": "idea-validation-summary-report",
+      "title": "Add validation summary report",
+      "summary": "Render a compact public validation summary that groups counts, blockers, and next actions for maintainers.",
+      "source_refs": [
+        "validate",
+        "docs/repair-plan.md"
+      ],
+      "status": "candidate",
+      "public_safety": "generalized",
+      "impact": 4,
+      "effort": 3,
+      "confidence": 4,
+      "next_action": "Add a report-only validation summary fixture and CLI."
     },
     {
       "idea_id": "idea-downstream-dogfooding-docs",

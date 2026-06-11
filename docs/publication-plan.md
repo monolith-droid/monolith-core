@@ -68,6 +68,15 @@ This project should become a separate public repository:
 - No real vault discovery, Drive sync, file mutation, scheduler execution,
   external model calls, worker dispatch, or notification publishing.
 
+## v0.2.4 Scope
+
+- Public context-pack diff schema and synthetic output fixture.
+- `monolith-core context-pack-diff` report-only CLI command.
+- Added, removed, and unchanged card id groups for two public context-pack
+  fixtures.
+- No file mutation, vault writes, Drive sync, issue creation, scheduler
+  execution, external model calls, worker dispatch, or notification publishing.
+
 ## First Issues
 
 1. Define stable card and index ids. Done in `v0.1.1`.
@@ -83,6 +92,7 @@ This project should become a separate public repository:
 7. Add report-only repair plans from validation and scorecard findings. Covered
    first by `v0.2.2`.
 8. Add a synthetic adapter conversion example. Covered first by `v0.2.3`.
+9. Add report-only context-pack diffs. Covered first by `v0.2.4`.
 
 ## Relationship To I/O Safety Kit
 

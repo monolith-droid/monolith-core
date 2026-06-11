@@ -7,6 +7,7 @@ from pathlib import Path
 
 from monolith_core.cli import (
     adapter_example_report,
+    context_pack_diff_report,
     growth_queue_report,
     main,
     repair_plan_report,
@@ -114,10 +115,10 @@ def test_growth_queue_report_ranks_candidate_ideas() -> None:
     assert report["status"] == "growth_queue_ready"
     assert report["mode"] == "report_only"
     assert report["mutation_performed"] is False
-    assert report["idea_count"] == 5
+    assert report["idea_count"] == 6
     assert report["candidate_count"] == 1
     assert report["selected_count"] == 1
-    assert report["top_ideas"][0]["idea_id"] == "idea-context-pack-diff-report"
+    assert report["top_ideas"][0]["idea_id"] == "idea-validation-summary-report"
     assert report["top_ideas"][0]["priority_score"] == 21.33
     assert report["blockers"] == []
     assert report["warnings"] == []
@@ -232,6 +233,37 @@ def test_pack_command_passes() -> None:
         "examples/synthetic-vault/context-pack.json",
     ])
     assert code == 0
+
+
+def test_context_pack_diff_fixture_matches_report_command() -> None:
+    fixture = json.loads((ROOT / "context-pack-diff.json").read_text(encoding="utf-8"))
+    result = context_pack_diff_report(ROOT / "context-pack.json", ROOT / "context-pack-expanded.json")
+    assert result == fixture
+
+
+def test_context_pack_diff_command_passes() -> None:
+    code = main([
+        "context-pack-diff",
+        "--base",
+        "examples/synthetic-vault/context-pack.json",
+        "--candidate",
+        "examples/synthetic-vault/context-pack-expanded.json",
+    ])
+    assert code == 0
+
+
+def test_context_pack_diff_detects_removed_cards(tmp_path: Path) -> None:
+    candidate = tmp_path / "context-pack-small.json"
+    value = json.loads((ROOT / "context-pack.json").read_text(encoding="utf-8"))
+    value["card_ids"] = ["card-agent-memory"]
+    candidate.write_text(json.dumps(value), encoding="utf-8")
+
+    result = context_pack_diff_report(ROOT / "context-pack.json", candidate)
+
+    assert result["status"] == "context_pack_changed"
+    assert result["added_card_ids"] == []
+    assert result["removed_card_ids"] == ["card-branch-return"]
+    assert result["unchanged_card_ids"] == ["card-agent-memory"]
 
 
 def test_branch_return_command_passes() -> None:

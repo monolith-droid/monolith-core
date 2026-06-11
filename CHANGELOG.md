@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.4 - 2026-06-11
+
+- Add `monolith-core context-pack-diff` for report-only comparisons between
+  public context-pack fixtures.
+- Add context-pack diff schema, expanded synthetic pack, and output fixture.
+
 ## 0.2.3 - 2026-06-11
 
 - Add a synthetic adapter example for converting a Markdown-like note into

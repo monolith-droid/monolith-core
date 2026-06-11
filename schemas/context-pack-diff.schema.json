@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MONOLITH Core Context Pack Diff",
+  "type": "object",
+  "required": [
+    "diff_id",
+    "passed",
+    "status",
+    "mode",
+    "mutation_performed",
+    "base_pack",
+    "candidate_pack",
+    "added_card_ids",
+    "removed_card_ids",
+    "unchanged_card_ids",
+    "added_count",
+    "removed_count",
+    "unchanged_count",
+    "blockers",
+    "warnings"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "diff_id": {
+      "type": "string",
+      "pattern": "^diff-[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "passed": { "type": "boolean" },
+    "status": {
+      "type": "string",
+      "enum": ["context_pack_changed", "context_pack_unchanged"]
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["report_only"]
+    },
+    "mutation_performed": { "type": "boolean", "const": false },
+    "base_pack": {
+      "type": "object",
+      "required": ["path", "pack_id", "card_count"],
+      "additionalProperties": false,
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "pack_id": {
+          "type": "string",
+          "pattern": "^pack-[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "card_count": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "candidate_pack": {
+      "type": "object",
+      "required": ["path", "pack_id", "card_count"],
+      "additionalProperties": false,
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "pack_id": {
+          "type": "string",
+          "pattern": "^pack-[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "card_count": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "added_card_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^card-[a-z0-9]+(?:-[a-z0-9]+)*$"
+      }
+    },
+    "removed_card_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^card-[a-z0-9]+(?:-[a-z0-9]+)*$"
+      }
+    },
+    "unchanged_card_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^card-[a-z0-9]+(?:-[a-z0-9]+)*$"
+      }
+    },
+    "added_count": { "type": "integer", "minimum": 0 },
+    "removed_count": { "type": "integer", "minimum": 0 },
+    "unchanged_count": { "type": "integer", "minimum": 0 },
+    "blockers": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "warnings": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

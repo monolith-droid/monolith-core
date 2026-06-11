@@ -51,6 +51,9 @@ problems into a report-only repair checklist.
 See [Synthetic adapter example](docs/synthetic-adapter-example.md) for mapping a
 Markdown-like note to public JSON card, index, and context-pack contracts.
 
+See [Context pack diff](docs/context-pack-diff.md) for comparing two public
+context-pack fixtures report-only.
+
 ## Quick Start
 
 ```bash
@@ -62,6 +65,7 @@ monolith-core score --root examples/synthetic-vault --as-of 2026-06-11
 monolith-core growth-queue --queue examples/synthetic-vault/growth-ideas.json
 monolith-core repair-plan --root examples/synthetic-vault --as-of 2026-07-15
 monolith-core adapter-example --note examples/synthetic-vault/adapter-note.md
+monolith-core context-pack-diff --base examples/synthetic-vault/context-pack.json --candidate examples/synthetic-vault/context-pack-expanded.json
 monolith-core curate-dry-run --root examples/synthetic-vault --out reports/curator-report.json
 ```
 
@@ -86,5 +90,6 @@ For side-effect control, pair this project with
 - `v0.2.1`: downstream dogfooding docs and public-safe growth idea queue.
 - `v0.2.2`: report-only repair plans from validation and scorecard findings.
 - `v0.2.3`: synthetic adapter example for Markdown-like notes to JSON contracts.
+- `v0.2.4`: report-only context-pack diffs.
 - `v0.3.0`: adapter guide for local Obsidian vaults without private data leaks.
 - `v1.0.0`: stable card/index/context-pack contracts.
