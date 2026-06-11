@@ -33,6 +33,14 @@ This project should become a separate public repository:
 - No private vault reads, no Drive sync, no scheduler, no external model calls,
   and no mutation of user files.
 
+## v0.2.x Follow-Up
+
+- Document downstream dogfooding from private MONOLITH and Mac adapters.
+- Convert private adapter findings into public-safe issues, synthetic fixtures,
+  report-only commands, and docs.
+- Keep raw logs, private vault data, Drive metadata, scheduler authority,
+  approval ids, endpoints, and local paths outside the public repository.
+
 ## First Issues
 
 1. Define stable card and index ids. Done in `v0.1.1`.
@@ -43,6 +51,7 @@ This project should become a separate public repository:
 4. Add richer context-pack scoring. Covered first by the report-only scorecard
    in `v0.2.0`.
 5. Add downstream dogfooding notes from private adapters without private data.
+   Covered first by `docs/downstream-dogfooding.md`.
 
 ## Relationship To I/O Safety Kit
 

@@ -39,6 +39,9 @@ context-pack id rules.
 See [Obsidian workflow](docs/obsidian-workflow.md) for a public-safe vault
 layout and the private adapter boundary.
 
+See [Downstream dogfooding](docs/downstream-dogfooding.md) for the path from
+private MONOLITH or Mac adapter findings back to public-safe issues and PRs.
+
 ## Quick Start
 
 ```bash
@@ -68,5 +71,6 @@ For side-effect control, pair this project with
 - `v0.1.1`: stable id conventions for cards, indexes, and context packs.
 - `v0.1.2`: public-safe Obsidian workflow guide.
 - `v0.2.0`: memory scorecard, context-pack scoring, and stale-card detection.
+- `v0.2.x`: downstream dogfooding docs and public-safe adapter return patterns.
 - `v0.3.0`: adapter guide for local Obsidian vaults without private data leaks.
 - `v1.0.0`: stable card/index/context-pack contracts.
