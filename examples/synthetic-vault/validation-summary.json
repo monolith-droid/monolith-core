@@ -1,0 +1,22 @@
+{
+  "summary_id": "summary-synthetic-validation",
+  "passed": true,
+  "status": "validation_summary_ready",
+  "mode": "report_only",
+  "mutation_performed": false,
+  "root": "examples/synthetic-vault",
+  "source_status": "valid",
+  "source_passed": true,
+  "counts": {
+    "card_count": 2,
+    "index_entry_count": 2,
+    "context_pack_card_count": 2,
+    "branch_return_finding_count": 1
+  },
+  "blocker_count": 0,
+  "blockers": [],
+  "next_actions": [
+    "no_public_validation_repairs_needed"
+  ],
+  "warnings": []
+}

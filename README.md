@@ -54,11 +54,15 @@ Markdown-like note to public JSON card, index, and context-pack contracts.
 See [Context pack diff](docs/context-pack-diff.md) for comparing two public
 context-pack fixtures report-only.
 
+See [Validation summary](docs/validation-summary.md) for compact report-only
+validation counts, blockers, and next actions.
+
 ## Quick Start
 
 ```bash
 python -m pip install -e .
 monolith-core validate --root examples/synthetic-vault
+monolith-core validation-summary --root examples/synthetic-vault
 monolith-core pack --index examples/synthetic-vault/index.json --pack examples/synthetic-vault/context-pack.json
 monolith-core branch-return-check --report examples/synthetic-vault/branch-return.json
 monolith-core score --root examples/synthetic-vault --as-of 2026-06-11
@@ -91,5 +95,6 @@ For side-effect control, pair this project with
 - `v0.2.2`: report-only repair plans from validation and scorecard findings.
 - `v0.2.3`: synthetic adapter example for Markdown-like notes to JSON contracts.
 - `v0.2.4`: report-only context-pack diffs.
+- `v0.2.5`: compact report-only validation summaries.
 - `v0.3.0`: adapter guide for local Obsidian vaults without private data leaks.
 - `v1.0.0`: stable card/index/context-pack contracts.

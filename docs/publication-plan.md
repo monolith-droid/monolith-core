@@ -77,6 +77,16 @@ This project should become a separate public repository:
 - No file mutation, vault writes, Drive sync, issue creation, scheduler
   execution, external model calls, worker dispatch, or notification publishing.
 
+## v0.2.5 Scope
+
+- Public validation summary schema and synthetic output fixture.
+- `monolith-core validation-summary` report-only CLI command.
+- Compact counts, blockers, source validation status, and next actions for a
+  public synthetic vault.
+- No file mutation, vault writes, Drive sync, issue creation, scheduler
+  execution, external model calls, worker dispatch, notification publishing, or
+  private data reads.
+
 ## First Issues
 
 1. Define stable card and index ids. Done in `v0.1.1`.
@@ -93,6 +103,7 @@ This project should become a separate public repository:
    first by `v0.2.2`.
 8. Add a synthetic adapter conversion example. Covered first by `v0.2.3`.
 9. Add report-only context-pack diffs. Covered first by `v0.2.4`.
+10. Add report-only validation summaries. Covered first by `v0.2.5`.
 
 ## Relationship To I/O Safety Kit
 

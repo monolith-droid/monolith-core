@@ -77,12 +77,27 @@
         "validate",
         "docs/repair-plan.md"
       ],
+      "status": "adopted",
+      "public_safety": "generalized",
+      "impact": 4,
+      "effort": 3,
+      "confidence": 4,
+      "next_action": "Use validation-summary before promoting validation reports."
+    },
+    {
+      "idea_id": "idea-release-readiness-report",
+      "title": "Add release readiness report",
+      "summary": "Combine validation summary, scorecard, growth queue, and context-pack diff signals into a compact public release readiness report.",
+      "source_refs": [
+        "docs/validation-summary.md",
+        "docs/context-pack-diff.md"
+      ],
       "status": "candidate",
       "public_safety": "generalized",
       "impact": 4,
       "effort": 3,
       "confidence": 4,
-      "next_action": "Add a report-only validation summary fixture and CLI."
+      "next_action": "Add a report-only release readiness fixture and CLI."
     },
     {
       "idea_id": "idea-downstream-dogfooding-docs",

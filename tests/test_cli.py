@@ -13,6 +13,7 @@ from monolith_core.cli import (
     repair_plan_report,
     score_root,
     validate_root,
+    validation_summary_report,
 )
 
 
@@ -108,6 +109,38 @@ def test_score_command_detects_missing_freshness_metadata(tmp_path: Path) -> Non
     assert code == 1
 
 
+def test_validation_summary_fixture_matches_report_command() -> None:
+    fixture = json.loads((ROOT / "validation-summary.json").read_text(encoding="utf-8"))
+    result = validation_summary_report(ROOT)
+    assert result == fixture
+
+
+def test_validation_summary_command_passes() -> None:
+    code = main([
+        "validation-summary",
+        "--root",
+        "examples/synthetic-vault",
+    ])
+    assert code == 0
+
+
+def test_validation_summary_handles_validation_errors(tmp_path: Path) -> None:
+    fixture = tmp_path / "synthetic-vault"
+    shutil.copytree(ROOT, fixture)
+    card_path = fixture / "cards" / "card-agent-memory.json"
+    card = json.loads(card_path.read_text(encoding="utf-8"))
+    card["card_id"] = "Card_AgentMemory"
+    card_path.write_text(json.dumps(card), encoding="utf-8")
+
+    result = validation_summary_report(fixture)
+
+    assert result["passed"] is True
+    assert result["source_passed"] is False
+    assert result["source_status"] == "validation_error"
+    assert result["blocker_count"] == 1
+    assert result["next_actions"] == ["fix_public_fixture_shape_before_validation"]
+
+
 def test_growth_queue_report_ranks_candidate_ideas() -> None:
     report = growth_queue_report(ROOT / "growth-ideas.json")
 
@@ -115,10 +148,10 @@ def test_growth_queue_report_ranks_candidate_ideas() -> None:
     assert report["status"] == "growth_queue_ready"
     assert report["mode"] == "report_only"
     assert report["mutation_performed"] is False
-    assert report["idea_count"] == 6
+    assert report["idea_count"] == 7
     assert report["candidate_count"] == 1
     assert report["selected_count"] == 1
-    assert report["top_ideas"][0]["idea_id"] == "idea-validation-summary-report"
+    assert report["top_ideas"][0]["idea_id"] == "idea-release-readiness-report"
     assert report["top_ideas"][0]["priority_score"] == 21.33
     assert report["blockers"] == []
     assert report["warnings"] == []

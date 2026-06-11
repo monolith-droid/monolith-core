@@ -90,6 +90,72 @@ def run_validate(args: argparse.Namespace) -> int:
     return 0 if result["passed"] else 1
 
 
+def _actions_from_validation_blockers(blockers: list[str]) -> list[str]:
+    actions: list[str] = []
+    for blocker in blockers:
+        key, _, _ = blocker.partition(":")
+        if key == "cards_missing_from_index":
+            actions.append("add_missing_cards_to_index")
+        elif key == "index_refs_unknown_cards":
+            actions.append("remove_or_create_unknown_index_card_refs")
+        elif key == "context_pack_refs_unknown_cards":
+            actions.append("refresh_context_pack_card_refs")
+        elif key == "branch_return_refs_unknown_cards":
+            actions.append("refresh_branch_return_card_refs")
+        else:
+            actions.append("review_validation_blocker")
+    return actions
+
+
+def validation_summary_report(root: Path) -> dict[str, Any]:
+    try:
+        result = validate_root(root)
+        counts = {
+            "card_count": result["card_count"],
+            "index_entry_count": result["index_entry_count"],
+            "context_pack_card_count": result["context_pack_card_count"],
+            "branch_return_finding_count": result["branch_return_finding_count"],
+        }
+        blockers = list(result["blockers"])
+        next_actions = _actions_from_validation_blockers(blockers) if blockers else [
+            "no_public_validation_repairs_needed"
+        ]
+        source_status = result["status"]
+        source_passed = result["passed"]
+    except ValidationError as exc:
+        counts = {}
+        blockers = [str(exc)]
+        next_actions = ["fix_public_fixture_shape_before_validation"]
+        source_status = "validation_error"
+        source_passed = False
+
+    return {
+        "summary_id": "summary-synthetic-validation",
+        "passed": True,
+        "status": "validation_summary_ready",
+        "mode": "report_only",
+        "mutation_performed": False,
+        "root": _public_path(root),
+        "source_status": source_status,
+        "source_passed": source_passed,
+        "counts": counts,
+        "blocker_count": len(blockers),
+        "blockers": blockers,
+        "next_actions": next_actions,
+        "warnings": [],
+    }
+
+
+def run_validation_summary(args: argparse.Namespace) -> int:
+    report = validation_summary_report(Path(args.root))
+    if args.out:
+        out = Path(args.out)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    _print_json(report)
+    return 0
+
+
 def run_pack(args: argparse.Namespace) -> int:
     index = load_index(Path(args.index))
     context_pack = load_context_pack(Path(args.pack))
@@ -713,6 +779,14 @@ def build_parser() -> argparse.ArgumentParser:
     validate = subcommands.add_parser("validate", help="Validate a synthetic MONOLITH Core vault fixture.")
     validate.add_argument("--root", required=True)
     validate.set_defaults(func=run_validate)
+
+    validation_summary = subcommands.add_parser(
+        "validation-summary",
+        help="Render a compact report-only validation summary.",
+    )
+    validation_summary.add_argument("--root", required=True)
+    validation_summary.add_argument("--out")
+    validation_summary.set_defaults(func=run_validation_summary)
 
     pack = subcommands.add_parser("pack", help="Validate that a context pack references indexed cards.")
     pack.add_argument("--index", required=True)
