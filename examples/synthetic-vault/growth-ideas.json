@@ -1,0 +1,57 @@
+{
+  "queue_id": "queue-synthetic-self-growth",
+  "generated_at": "2026-06-11",
+  "mode": "report_only",
+  "mutation_performed": false,
+  "source_refs": [
+    "scorecard-synthetic-core",
+    "branch-synthetic-oss-maintainer",
+    "docs/downstream-dogfooding.md"
+  ],
+  "ideas": [
+    {
+      "idea_id": "idea-growth-queue-cli",
+      "title": "Rank public-safe self-growth ideas",
+      "summary": "Give maintainers a deterministic queue for choosing the next MONOLITH Core improvement without importing private adapter data.",
+      "source_refs": [
+        "scorecard-synthetic-core",
+        "docs/downstream-dogfooding.md"
+      ],
+      "status": "candidate",
+      "public_safety": "synthetic",
+      "impact": 5,
+      "effort": 2,
+      "confidence": 4,
+      "next_action": "Add a growth-queue CLI command that ranks synthetic ideas report-only."
+    },
+    {
+      "idea_id": "idea-repair-plan-report",
+      "title": "Generate repair plans from validation failures",
+      "summary": "Turn validation or scorecard failures into a public-safe report-only repair plan for the next small PR.",
+      "source_refs": [
+        "scorecard-synthetic-core",
+        "finding-context-recovery"
+      ],
+      "status": "candidate",
+      "public_safety": "generalized",
+      "impact": 5,
+      "effort": 3,
+      "confidence": 4,
+      "next_action": "Design a repair-plan fixture and CLI around synthetic validation failures."
+    },
+    {
+      "idea_id": "idea-downstream-dogfooding-docs",
+      "title": "Document downstream dogfooding",
+      "summary": "Explain how private adapter findings become public-safe issues, fixtures, and docs.",
+      "source_refs": [
+        "docs/downstream-dogfooding.md"
+      ],
+      "status": "adopted",
+      "public_safety": "generalized",
+      "impact": 4,
+      "effort": 2,
+      "confidence": 5,
+      "next_action": "Keep using the guide when returning private adapter lessons to public MONOLITH Core."
+    }
+  ]
+}

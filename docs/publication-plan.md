@@ -41,6 +41,15 @@ This project should become a separate public repository:
 - Keep raw logs, private vault data, Drive metadata, scheduler authority,
   approval ids, endpoints, and local paths outside the public repository.
 
+## v0.2.1 Scope
+
+- Public-safe growth idea queue schema and synthetic fixture.
+- `monolith-core growth-queue` report-only CLI command.
+- Deterministic ranking for candidate ideas using public impact, effort, and
+  confidence scores.
+- No issue creation, worker dispatch, scheduler execution, external model calls,
+  or mutation of user files.
+
 ## First Issues
 
 1. Define stable card and index ids. Done in `v0.1.1`.
@@ -52,6 +61,7 @@ This project should become a separate public repository:
    in `v0.2.0`.
 5. Add downstream dogfooding notes from private adapters without private data.
    Covered first by `docs/downstream-dogfooding.md`.
+6. Add a self-growth idea queue. Covered first by `v0.2.1`.
 
 ## Relationship To I/O Safety Kit
 

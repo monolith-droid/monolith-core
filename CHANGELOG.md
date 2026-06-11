@@ -1,9 +1,12 @@
 # Changelog
 
-## Unreleased
+## 0.2.1 - 2026-06-11
 
 - Add downstream dogfooding guidance for translating private adapter findings
   into public-safe issues, fixtures, and docs.
+- Add a public-safe growth idea queue schema and synthetic fixture.
+- Add `monolith-core growth-queue` for report-only self-growth candidate
+  ranking.
 
 ## 0.2.0 - 2026-06-11
 

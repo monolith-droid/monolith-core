@@ -17,6 +17,8 @@ ID_PREFIXES = {
     "finding_id": "finding-",
     "scorecard_id": "scorecard-",
     "score_id": "score-",
+    "queue_id": "queue-",
+    "idea_id": "idea-",
 }
 
 
@@ -85,6 +87,29 @@ def optional_positive_int(value: dict[str, Any], key: str, path: Path) -> int | 
         return None
     if not isinstance(item, int) or item <= 0:
         raise ValidationError(f"{path}: {key} must be a positive integer")
+    return item
+
+
+def require_date(value: dict[str, Any], key: str, path: Path) -> date:
+    item = require_string(value, key, path)
+    try:
+        return date.fromisoformat(item)
+    except ValueError as exc:
+        raise ValidationError(f"{path}: {key} must use YYYY-MM-DD") from exc
+
+
+def require_int_range(value: dict[str, Any], key: str, path: Path, minimum: int, maximum: int) -> int:
+    item = value.get(key)
+    if not isinstance(item, int) or not minimum <= item <= maximum:
+        raise ValidationError(f"{path}: {key} must be an integer from {minimum} to {maximum}")
+    return item
+
+
+def require_enum(value: dict[str, Any], key: str, path: Path, allowed: set[str]) -> str:
+    item = require_string(value, key, path)
+    if item not in allowed:
+        options = ", ".join(sorted(allowed))
+        raise ValidationError(f"{path}: {key} must be one of {options}")
     return item
 
 
@@ -165,4 +190,37 @@ def load_branch_return(path: Path) -> dict[str, Any]:
         require_id(finding, "finding_id", path)
         require_string(finding, "status", path)
         require_string(finding, "summary", path)
+    return value
+
+
+def load_growth_idea_queue(path: Path) -> dict[str, Any]:
+    value = read_json(path)
+    require_id(value, "queue_id", path)
+    require_date(value, "generated_at", path)
+    require_enum(value, "mode", path, {"report_only"})
+    if value.get("mutation_performed") is not False:
+        raise ValidationError(f"{path}: mutation_performed must be false")
+    require_string_list(value, "source_refs", path)
+
+    ideas = value.get("ideas")
+    if not isinstance(ideas, list) or not ideas:
+        raise ValidationError(f"{path}: ideas must be a non-empty list")
+    idea_ids: list[str] = []
+    for index, idea in enumerate(ideas):
+        if not isinstance(idea, dict):
+            raise ValidationError(f"{path}: ideas[{index}] must be an object")
+        idea_ids.append(require_id(idea, "idea_id", path))
+        require_string(idea, "title", path)
+        require_string(idea, "summary", path)
+        require_string_list(idea, "source_refs", path)
+        require_enum(idea, "status", path, {"adopted", "candidate", "deferred"})
+        require_enum(idea, "public_safety", path, {"generalized", "synthetic"})
+        require_int_range(idea, "impact", path, 1, 5)
+        require_int_range(idea, "effort", path, 1, 5)
+        require_int_range(idea, "confidence", path, 1, 5)
+        require_string(idea, "next_action", path)
+
+    duplicate_ids = sorted({idea_id for idea_id in idea_ids if idea_ids.count(idea_id) > 1})
+    if duplicate_ids:
+        raise ValidationError(f"duplicate idea ids: {', '.join(duplicate_ids)}")
     return value
