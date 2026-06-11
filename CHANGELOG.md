@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.3 - 2026-06-11
+
+- Add a synthetic adapter example for converting a Markdown-like note into
+  public card, index, and context-pack contracts.
+- Add `monolith-core adapter-example` for report-only adapter conversion output.
+
 ## 0.2.2 - 2026-06-11
 
 - Add a public-safe repair plan schema and synthetic fixture.

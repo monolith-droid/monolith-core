@@ -47,12 +47,27 @@
         "docs/obsidian-workflow.md",
         "docs/adapter-boundary.md"
       ],
+      "status": "adopted",
+      "public_safety": "synthetic",
+      "impact": 4,
+      "effort": 3,
+      "confidence": 4,
+      "next_action": "Keep adapter conversion examples synthetic and report-only."
+    },
+    {
+      "idea_id": "idea-context-pack-diff-report",
+      "title": "Add context-pack diff report",
+      "summary": "Compare two public context-pack fixtures and report added, removed, and unchanged card ids without mutating either pack.",
+      "source_refs": [
+        "context-pack.json",
+        "docs/memory-scorecard.md"
+      ],
       "status": "candidate",
       "public_safety": "synthetic",
       "impact": 4,
       "effort": 3,
       "confidence": 4,
-      "next_action": "Add a synthetic adapter conversion fixture and documentation."
+      "next_action": "Add a report-only context-pack diff fixture and CLI."
     },
     {
       "idea_id": "idea-downstream-dogfooding-docs",

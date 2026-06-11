@@ -1,0 +1,50 @@
+{
+  "adapter_example_id": "adapter-example-synthetic-note",
+  "passed": true,
+  "status": "adapter_example_ready",
+  "mode": "report_only",
+  "mutation_performed": false,
+  "note": "examples/synthetic-vault/adapter-note.md",
+  "contract_count": 3,
+  "contracts": {
+    "card": {
+      "card_id": "card-synthetic-adapter-example",
+      "title": "Synthetic Adapter Conversion Example",
+      "summary": "A private adapter can map a reviewed Markdown-like note into public JSON contracts after replacing real vault paths, account details, and raw logs with synthetic evidence.",
+      "tags": [
+        "adapter-example",
+        "public-safe",
+        "context-pack"
+      ],
+      "source_refs": [
+        "synthetic:adapter-note",
+        "docs/obsidian-workflow.md"
+      ],
+      "last_reviewed": "2026-06-11",
+      "review_interval_days": 30
+    },
+    "index": {
+      "index_id": "index-synthetic-adapter-example",
+      "entries": [
+        {
+          "card_id": "card-synthetic-adapter-example",
+          "path": "cards/card-synthetic-adapter-example.json",
+          "tags": [
+            "adapter-example",
+            "public-safe",
+            "context-pack"
+          ]
+        }
+      ]
+    },
+    "context_pack": {
+      "pack_id": "pack-synthetic-adapter-example",
+      "purpose": "Demonstrate a public-safe context pack generated from one synthetic note.",
+      "card_ids": [
+        "card-synthetic-adapter-example"
+      ]
+    }
+  },
+  "blockers": [],
+  "warnings": []
+}

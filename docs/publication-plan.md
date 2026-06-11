@@ -59,6 +59,15 @@ This project should become a separate public repository:
 - No file repair, issue creation, worker dispatch, scheduler execution,
   external model calls, private vault reads, or mutation of user files.
 
+## v0.2.3 Scope
+
+- Synthetic Markdown-like note fixture.
+- `monolith-core adapter-example` report-only CLI command.
+- Public output fixture that shows the generated card, index, and context-pack
+  contracts.
+- No real vault discovery, Drive sync, file mutation, scheduler execution,
+  external model calls, worker dispatch, or notification publishing.
+
 ## First Issues
 
 1. Define stable card and index ids. Done in `v0.1.1`.
@@ -73,6 +82,7 @@ This project should become a separate public repository:
 6. Add a self-growth idea queue. Covered first by `v0.2.1`.
 7. Add report-only repair plans from validation and scorecard findings. Covered
    first by `v0.2.2`.
+8. Add a synthetic adapter conversion example. Covered first by `v0.2.3`.
 
 ## Relationship To I/O Safety Kit
 

@@ -497,6 +497,143 @@ def run_repair_plan(args: argparse.Namespace) -> int:
     return 0
 
 
+def _parse_synthetic_note(path: Path) -> tuple[dict[str, str | list[str]], str]:
+    text = path.read_text(encoding="utf-8")
+    lines = text.splitlines()
+    if len(lines) < 3 or lines[0].strip() != "---":
+        raise ValidationError(f"{path}: synthetic note must start with frontmatter")
+    try:
+        end = lines[1:].index("---") + 1
+    except ValueError as exc:
+        raise ValidationError(f"{path}: synthetic note frontmatter must end with ---") from exc
+
+    fields: dict[str, str | list[str]] = {}
+    current_list_key: str | None = None
+    for line in lines[1:end]:
+        if line.startswith("  - "):
+            if current_list_key is None:
+                raise ValidationError(f"{path}: list item without key")
+            value = line[4:].strip()
+            if not value:
+                raise ValidationError(f"{path}: list values must be non-empty")
+            existing = fields.setdefault(current_list_key, [])
+            if not isinstance(existing, list):
+                raise ValidationError(f"{path}: {current_list_key} mixes scalar and list values")
+            existing.append(value)
+            continue
+        if ":" not in line:
+            raise ValidationError(f"{path}: frontmatter lines must use key: value")
+        key, raw_value = line.split(":", 1)
+        key = key.strip()
+        raw_value = raw_value.strip()
+        if not key:
+            raise ValidationError(f"{path}: frontmatter keys must be non-empty")
+        if raw_value:
+            fields[key] = raw_value
+            current_list_key = None
+        else:
+            fields[key] = []
+            current_list_key = key
+
+    body = "\n".join(lines[end + 1 :]).strip()
+    if not body:
+        raise ValidationError(f"{path}: synthetic note body must be non-empty")
+    return fields, body
+
+
+def _required_note_string(fields: dict[str, str | list[str]], key: str, path: Path) -> str:
+    value = fields.get(key)
+    if not isinstance(value, str) or not value:
+        raise ValidationError(f"{path}: {key} must be a non-empty frontmatter string")
+    return value
+
+
+def _required_note_list(fields: dict[str, str | list[str]], key: str, path: Path) -> list[str]:
+    value = fields.get(key)
+    if not isinstance(value, list) or not value or not all(isinstance(item, str) and item for item in value):
+        raise ValidationError(f"{path}: {key} must be a non-empty frontmatter list")
+    return value
+
+
+def _note_summary(body: str) -> str:
+    paragraphs = [part.strip() for part in body.split("\n\n") if part.strip()]
+    for paragraph in paragraphs:
+        if paragraph.startswith("#"):
+            continue
+        return " ".join(paragraph.split())
+    raise ValidationError("synthetic note body must include a summary paragraph")
+
+
+def adapter_example_report(note_path: Path) -> dict[str, Any]:
+    fields, body = _parse_synthetic_note(note_path)
+    card_id = _required_note_string(fields, "card_id", note_path)
+    title = _required_note_string(fields, "title", note_path)
+    tags = _required_note_list(fields, "tags", note_path)
+    source_refs = _required_note_list(fields, "source_refs", note_path)
+    index_id = _required_note_string(fields, "index_id", note_path)
+    pack_id = _required_note_string(fields, "pack_id", note_path)
+    purpose = _required_note_string(fields, "purpose", note_path)
+    output_path = _required_note_string(fields, "output_path", note_path)
+    last_reviewed = _required_note_string(fields, "last_reviewed", note_path)
+    try:
+        review_interval_days = int(_required_note_string(fields, "review_interval_days", note_path))
+    except ValueError as exc:
+        raise ValidationError(f"{note_path}: review_interval_days must be an integer") from exc
+    if review_interval_days <= 0:
+        raise ValidationError(f"{note_path}: review_interval_days must be positive")
+
+    card = {
+        "card_id": card_id,
+        "title": title,
+        "summary": _note_summary(body),
+        "tags": tags,
+        "source_refs": source_refs,
+        "last_reviewed": last_reviewed,
+        "review_interval_days": review_interval_days,
+    }
+    index = {
+        "index_id": index_id,
+        "entries": [
+            {
+                "card_id": card_id,
+                "path": output_path,
+                "tags": tags,
+            }
+        ],
+    }
+    context_pack = {
+        "pack_id": pack_id,
+        "purpose": purpose,
+        "card_ids": [card_id],
+    }
+    return {
+        "adapter_example_id": "adapter-example-synthetic-note",
+        "passed": True,
+        "status": "adapter_example_ready",
+        "mode": "report_only",
+        "mutation_performed": False,
+        "note": _public_path(note_path),
+        "contract_count": 3,
+        "contracts": {
+            "card": card,
+            "index": index,
+            "context_pack": context_pack,
+        },
+        "blockers": [],
+        "warnings": [],
+    }
+
+
+def run_adapter_example(args: argparse.Namespace) -> int:
+    report = adapter_example_report(Path(args.note))
+    if args.out:
+        out = Path(args.out)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    _print_json(report)
+    return 0
+
+
 def run_curate_dry_run(args: argparse.Namespace) -> int:
     result = validate_root(Path(args.root))
     report = {
@@ -557,6 +694,14 @@ def build_parser() -> argparse.ArgumentParser:
     repair.add_argument("--as-of", help="Evaluate freshness as of YYYY-MM-DD.")
     repair.add_argument("--out")
     repair.set_defaults(func=run_repair_plan)
+
+    adapter = subcommands.add_parser(
+        "adapter-example",
+        help="Convert a synthetic Markdown-like note into public JSON contract examples.",
+    )
+    adapter.add_argument("--note", required=True)
+    adapter.add_argument("--out")
+    adapter.set_defaults(func=run_adapter_example)
 
     curate = subcommands.add_parser("curate-dry-run", help="Render a report-only curator plan.")
     curate.add_argument("--root", required=True)
