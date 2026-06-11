@@ -17,12 +17,12 @@
         "scorecard-synthetic-core",
         "docs/downstream-dogfooding.md"
       ],
-      "status": "candidate",
+      "status": "adopted",
       "public_safety": "synthetic",
       "impact": 5,
       "effort": 2,
       "confidence": 4,
-      "next_action": "Add a growth-queue CLI command that ranks synthetic ideas report-only."
+      "next_action": "Keep using growth-queue to choose the next public-safe MONOLITH Core improvement."
     },
     {
       "idea_id": "idea-repair-plan-report",
@@ -32,12 +32,27 @@
         "scorecard-synthetic-core",
         "finding-context-recovery"
       ],
-      "status": "candidate",
+      "status": "adopted",
       "public_safety": "generalized",
       "impact": 5,
       "effort": 3,
       "confidence": 4,
-      "next_action": "Design a repair-plan fixture and CLI around synthetic validation failures."
+      "next_action": "Use repair-plan reports before promoting public fixture or schema fixes."
+    },
+    {
+      "idea_id": "idea-synthetic-adapter-example",
+      "title": "Add synthetic adapter conversion example",
+      "summary": "Show how a Markdown-like note can become the public JSON card, index, and context-pack contracts without real vault data.",
+      "source_refs": [
+        "docs/obsidian-workflow.md",
+        "docs/adapter-boundary.md"
+      ],
+      "status": "candidate",
+      "public_safety": "synthetic",
+      "impact": 4,
+      "effort": 3,
+      "confidence": 4,
+      "next_action": "Add a synthetic adapter conversion fixture and documentation."
     },
     {
       "idea_id": "idea-downstream-dogfooding-docs",

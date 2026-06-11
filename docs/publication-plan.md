@@ -50,6 +50,15 @@ This project should become a separate public repository:
 - No issue creation, worker dispatch, scheduler execution, external model calls,
   or mutation of user files.
 
+## v0.2.2 Scope
+
+- Public-safe repair plan schema and synthetic output fixture.
+- `monolith-core repair-plan` report-only CLI command.
+- Repair steps from validation blockers, low scorecard scores, stale-card
+  warnings, and loader errors.
+- No file repair, issue creation, worker dispatch, scheduler execution,
+  external model calls, private vault reads, or mutation of user files.
+
 ## First Issues
 
 1. Define stable card and index ids. Done in `v0.1.1`.
@@ -62,6 +71,8 @@ This project should become a separate public repository:
 5. Add downstream dogfooding notes from private adapters without private data.
    Covered first by `docs/downstream-dogfooding.md`.
 6. Add a self-growth idea queue. Covered first by `v0.2.1`.
+7. Add report-only repair plans from validation and scorecard findings. Covered
+   first by `v0.2.2`.
 
 ## Relationship To I/O Safety Kit
 
