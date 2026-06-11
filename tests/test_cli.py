@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import json
 import shutil
+from datetime import date
 from pathlib import Path
 
-from monolith_core.cli import main, validate_root
+from monolith_core.cli import main, score_root, validate_root
 
 
 ROOT = Path("examples/synthetic-vault")
@@ -34,6 +35,13 @@ def test_synthetic_fixture_uses_stable_id_prefixes() -> None:
     assert all(card_id.startswith("card-") for card_id in branch_return["card_refs"])
 
 
+def test_synthetic_cards_include_freshness_metadata() -> None:
+    for card_path in sorted((ROOT / "cards").glob("*.json")):
+        card = json.loads(card_path.read_text(encoding="utf-8"))
+        assert card["last_reviewed"] == "2026-06-01"
+        assert card["review_interval_days"] == 30
+
+
 def test_invalid_card_id_fails_validation(tmp_path: Path) -> None:
     fixture = tmp_path / "synthetic-vault"
     shutil.copytree(ROOT, fixture)
@@ -54,6 +62,42 @@ def test_obsidian_workflow_docs_preserve_public_boundary() -> None:
     assert "pack-monolith-core-mvp" in body
     assert "Private Adapter Boundary" in body
     assert "Public MONOLITH Core should remain useful without any private data" in body
+
+
+def test_memory_scorecard_fixture_matches_score_command() -> None:
+    fixture = json.loads((ROOT / "scorecard.json").read_text(encoding="utf-8"))
+    result = score_root(ROOT, as_of=date(2026, 6, 11))
+    assert result == fixture
+
+
+def test_score_command_passes() -> None:
+    code = main([
+        "score",
+        "--root",
+        "examples/synthetic-vault",
+        "--as-of",
+        "2026-06-11",
+    ])
+    assert code == 0
+
+
+def test_score_command_detects_missing_freshness_metadata(tmp_path: Path) -> None:
+    fixture = tmp_path / "synthetic-vault"
+    shutil.copytree(ROOT, fixture)
+    card_path = fixture / "cards" / "card-agent-memory.json"
+    card = json.loads(card_path.read_text(encoding="utf-8"))
+    card.pop("last_reviewed")
+    card.pop("review_interval_days")
+    card_path.write_text(json.dumps(card), encoding="utf-8")
+
+    code = main([
+        "score",
+        "--root",
+        str(fixture),
+        "--as-of",
+        "2026-06-11",
+    ])
+    assert code == 1
 
 
 def test_pack_command_passes() -> None:

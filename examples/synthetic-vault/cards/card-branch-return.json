@@ -3,5 +3,7 @@
   "title": "Project Branches Return Findings To Core Knowledge",
   "summary": "Reusable findings from a project branch should be linked back to shared core cards through an auditable branch-return report.",
   "tags": ["branch-return", "knowledge-index", "curation"],
-  "source_refs": ["synthetic:branch-contract"]
+  "source_refs": ["synthetic:branch-contract"],
+  "last_reviewed": "2026-06-01",
+  "review_interval_days": 30
 }

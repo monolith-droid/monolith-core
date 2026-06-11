@@ -3,5 +3,7 @@
   "title": "Agent Memory Belongs In Durable Notes",
   "summary": "Long-running agent workflows should recover context from indexed notes and cards instead of relying on chat memory alone.",
   "tags": ["agent-memory", "obsidian", "context-recovery"],
-  "source_refs": ["synthetic:memory-model"]
+  "source_refs": ["synthetic:memory-model"],
+  "last_reviewed": "2026-06-01",
+  "review_interval_days": 30
 }
