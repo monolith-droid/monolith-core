@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Add downstream dogfooding guidance for translating private adapter findings
+  into public-safe issues, fixtures, and docs.
+
 ## 0.2.0 - 2026-06-11
 
 - Add a public-safe memory scorecard schema and synthetic fixture.
