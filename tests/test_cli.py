@@ -5,7 +5,7 @@ import shutil
 from datetime import date
 from pathlib import Path
 
-from monolith_core.cli import main, score_root, validate_root
+from monolith_core.cli import growth_queue_report, main, score_root, validate_root
 
 
 ROOT = Path("examples/synthetic-vault")
@@ -96,6 +96,45 @@ def test_score_command_detects_missing_freshness_metadata(tmp_path: Path) -> Non
         str(fixture),
         "--as-of",
         "2026-06-11",
+    ])
+    assert code == 1
+
+
+def test_growth_queue_report_ranks_candidate_ideas() -> None:
+    report = growth_queue_report(ROOT / "growth-ideas.json")
+
+    assert report["passed"] is True
+    assert report["status"] == "growth_queue_ready"
+    assert report["mode"] == "report_only"
+    assert report["mutation_performed"] is False
+    assert report["idea_count"] == 3
+    assert report["candidate_count"] == 2
+    assert report["selected_count"] == 2
+    assert report["top_ideas"][0]["idea_id"] == "idea-growth-queue-cli"
+    assert report["top_ideas"][0]["priority_score"] == 40.0
+    assert report["blockers"] == []
+    assert report["warnings"] == []
+
+
+def test_growth_queue_command_passes() -> None:
+    code = main([
+        "growth-queue",
+        "--queue",
+        "examples/synthetic-vault/growth-ideas.json",
+    ])
+    assert code == 0
+
+
+def test_growth_queue_rejects_private_adapter_only_ideas(tmp_path: Path) -> None:
+    queue = tmp_path / "growth-ideas.json"
+    value = json.loads((ROOT / "growth-ideas.json").read_text(encoding="utf-8"))
+    value["ideas"][0]["public_safety"] = "private_adapter_only"
+    queue.write_text(json.dumps(value), encoding="utf-8")
+
+    code = main([
+        "growth-queue",
+        "--queue",
+        str(queue),
     ])
     assert code == 1
 

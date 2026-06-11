@@ -42,6 +42,9 @@ layout and the private adapter boundary.
 See [Downstream dogfooding](docs/downstream-dogfooding.md) for the path from
 private MONOLITH or Mac adapter findings back to public-safe issues and PRs.
 
+See [Growth idea queue](docs/growth-idea-queue.md) for a report-only way to
+rank public-safe self-growth candidates.
+
 ## Quick Start
 
 ```bash
@@ -50,6 +53,7 @@ monolith-core validate --root examples/synthetic-vault
 monolith-core pack --index examples/synthetic-vault/index.json --pack examples/synthetic-vault/context-pack.json
 monolith-core branch-return-check --report examples/synthetic-vault/branch-return.json
 monolith-core score --root examples/synthetic-vault --as-of 2026-06-11
+monolith-core growth-queue --queue examples/synthetic-vault/growth-ideas.json
 monolith-core curate-dry-run --root examples/synthetic-vault --out reports/curator-report.json
 ```
 
@@ -71,6 +75,6 @@ For side-effect control, pair this project with
 - `v0.1.1`: stable id conventions for cards, indexes, and context packs.
 - `v0.1.2`: public-safe Obsidian workflow guide.
 - `v0.2.0`: memory scorecard, context-pack scoring, and stale-card detection.
-- `v0.2.x`: downstream dogfooding docs and public-safe adapter return patterns.
+- `v0.2.1`: downstream dogfooding docs and public-safe growth idea queue.
 - `v0.3.0`: adapter guide for local Obsidian vaults without private data leaks.
 - `v1.0.0`: stable card/index/context-pack contracts.

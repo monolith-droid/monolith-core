@@ -11,6 +11,7 @@ from .model import (
     load_branch_return,
     load_cards,
     load_context_pack,
+    load_growth_idea_queue,
     load_index,
 )
 
@@ -252,6 +253,65 @@ def run_score(args: argparse.Namespace) -> int:
     return 0 if report["passed"] else 1
 
 
+def _idea_priority(idea: dict[str, Any]) -> float:
+    raw = (idea["impact"] * idea["confidence"]) / idea["effort"]
+    return round(min(100.0, raw * 4), 2)
+
+
+def growth_queue_report(queue_path: Path, limit: int = 3) -> dict[str, Any]:
+    queue = load_growth_idea_queue(queue_path)
+    ideas = queue["ideas"]
+    candidates = [idea for idea in ideas if idea["status"] == "candidate"]
+    blockers = [] if candidates else ["growth_queue_requires_candidate_ideas"]
+    ranked = sorted(
+        candidates,
+        key=lambda idea: (-_idea_priority(idea), -idea["impact"], idea["effort"], idea["idea_id"]),
+    )
+    top_ideas = [
+        {
+            "idea_id": idea["idea_id"],
+            "title": idea["title"],
+            "priority_score": _idea_priority(idea),
+            "impact": idea["impact"],
+            "effort": idea["effort"],
+            "confidence": idea["confidence"],
+            "public_safety": idea["public_safety"],
+            "source_refs": idea["source_refs"],
+            "next_action": idea["next_action"],
+        }
+        for idea in ranked[:limit]
+    ]
+    return {
+        "queue_id": queue["queue_id"],
+        "passed": not blockers,
+        "status": "growth_queue_ready" if not blockers else "growth_queue_blocked",
+        "mode": "report_only",
+        "mutation_performed": False,
+        "queue": _public_path(queue_path),
+        "generated_at": queue["generated_at"],
+        "source_refs": queue["source_refs"],
+        "idea_count": len(ideas),
+        "candidate_count": len(candidates),
+        "selected_count": len(top_ideas),
+        "top_ideas": top_ideas,
+        "blockers": blockers,
+        "warnings": [],
+    }
+
+
+def run_growth_queue(args: argparse.Namespace) -> int:
+    if args.limit < 1:
+        _print_json({"passed": False, "status": "validation_error", "blockers": ["limit_must_be_positive"]})
+        return 1
+    report = growth_queue_report(Path(args.queue), limit=args.limit)
+    if args.out:
+        out = Path(args.out)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    _print_json(report)
+    return 0 if report["passed"] else 1
+
+
 def run_curate_dry_run(args: argparse.Namespace) -> int:
     result = validate_root(Path(args.root))
     report = {
@@ -300,6 +360,12 @@ def build_parser() -> argparse.ArgumentParser:
     score.add_argument("--as-of", help="Evaluate freshness as of YYYY-MM-DD.")
     score.add_argument("--out")
     score.set_defaults(func=run_score)
+
+    growth = subcommands.add_parser("growth-queue", help="Rank a public-safe self-growth idea queue.")
+    growth.add_argument("--queue", required=True)
+    growth.add_argument("--limit", type=int, default=3)
+    growth.add_argument("--out")
+    growth.set_defaults(func=run_growth_queue)
 
     curate = subcommands.add_parser("curate-dry-run", help="Render a report-only curator plan.")
     curate.add_argument("--root", required=True)
