@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MONOLITH Core Synthetic Adapter Example",
+  "type": "object",
+  "required": [
+    "adapter_example_id",
+    "passed",
+    "status",
+    "mode",
+    "mutation_performed",
+    "note",
+    "contract_count",
+    "contracts",
+    "blockers",
+    "warnings"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "adapter_example_id": {
+      "type": "string",
+      "pattern": "^adapter-example-[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "passed": { "type": "boolean" },
+    "status": {
+      "type": "string",
+      "enum": ["adapter_example_ready"]
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["report_only"]
+    },
+    "mutation_performed": { "type": "boolean", "const": false },
+    "note": { "type": "string", "minLength": 1 },
+    "contract_count": { "type": "integer", "const": 3 },
+    "contracts": {
+      "type": "object",
+      "required": ["card", "index", "context_pack"],
+      "additionalProperties": false,
+      "properties": {
+        "card": { "$ref": "knowledge-card.schema.json" },
+        "index": { "$ref": "knowledge-index.schema.json" },
+        "context_pack": { "$ref": "context-pack.schema.json" }
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "warnings": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

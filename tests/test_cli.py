@@ -5,7 +5,14 @@ import shutil
 from datetime import date
 from pathlib import Path
 
-from monolith_core.cli import growth_queue_report, main, repair_plan_report, score_root, validate_root
+from monolith_core.cli import (
+    adapter_example_report,
+    growth_queue_report,
+    main,
+    repair_plan_report,
+    score_root,
+    validate_root,
+)
 
 
 ROOT = Path("examples/synthetic-vault")
@@ -107,10 +114,10 @@ def test_growth_queue_report_ranks_candidate_ideas() -> None:
     assert report["status"] == "growth_queue_ready"
     assert report["mode"] == "report_only"
     assert report["mutation_performed"] is False
-    assert report["idea_count"] == 4
+    assert report["idea_count"] == 5
     assert report["candidate_count"] == 1
     assert report["selected_count"] == 1
-    assert report["top_ideas"][0]["idea_id"] == "idea-synthetic-adapter-example"
+    assert report["top_ideas"][0]["idea_id"] == "idea-context-pack-diff-report"
     assert report["top_ideas"][0]["priority_score"] == 21.33
     assert report["blockers"] == []
     assert report["warnings"] == []
@@ -187,6 +194,33 @@ def test_repair_plan_handles_validation_errors(tmp_path: Path) -> None:
     assert result["source_passed"] is False
     assert result["source_status"] == "validation_error"
     assert result["repair_steps"][0]["repair_step_id"] == "repair-step-fix-fixture-shape"
+
+
+def test_adapter_example_fixture_matches_report_command() -> None:
+    fixture = json.loads((ROOT / "adapter-example.json").read_text(encoding="utf-8"))
+    result = adapter_example_report(ROOT / "adapter-note.md")
+    assert result == fixture
+
+
+def test_adapter_example_command_passes() -> None:
+    code = main([
+        "adapter-example",
+        "--note",
+        "examples/synthetic-vault/adapter-note.md",
+    ])
+    assert code == 0
+
+
+def test_adapter_example_rejects_missing_frontmatter(tmp_path: Path) -> None:
+    note = tmp_path / "bad-note.md"
+    note.write_text("# Bad Note\n\nNo frontmatter here.\n", encoding="utf-8")
+
+    code = main([
+        "adapter-example",
+        "--note",
+        str(note),
+    ])
+    assert code == 1
 
 
 def test_pack_command_passes() -> None:
