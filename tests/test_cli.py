@@ -5,7 +5,7 @@ import shutil
 from datetime import date
 from pathlib import Path
 
-from monolith_core.cli import growth_queue_report, main, score_root, validate_root
+from monolith_core.cli import growth_queue_report, main, repair_plan_report, score_root, validate_root
 
 
 ROOT = Path("examples/synthetic-vault")
@@ -107,11 +107,11 @@ def test_growth_queue_report_ranks_candidate_ideas() -> None:
     assert report["status"] == "growth_queue_ready"
     assert report["mode"] == "report_only"
     assert report["mutation_performed"] is False
-    assert report["idea_count"] == 3
-    assert report["candidate_count"] == 2
-    assert report["selected_count"] == 2
-    assert report["top_ideas"][0]["idea_id"] == "idea-growth-queue-cli"
-    assert report["top_ideas"][0]["priority_score"] == 40.0
+    assert report["idea_count"] == 4
+    assert report["candidate_count"] == 1
+    assert report["selected_count"] == 1
+    assert report["top_ideas"][0]["idea_id"] == "idea-synthetic-adapter-example"
+    assert report["top_ideas"][0]["priority_score"] == 21.33
     assert report["blockers"] == []
     assert report["warnings"] == []
 
@@ -137,6 +137,56 @@ def test_growth_queue_rejects_private_adapter_only_ideas(tmp_path: Path) -> None
         str(queue),
     ])
     assert code == 1
+
+
+def test_repair_plan_fixture_matches_report_command() -> None:
+    fixture = json.loads((ROOT / "repair-plan.json").read_text(encoding="utf-8"))
+    result = repair_plan_report(ROOT, as_of=date(2026, 7, 15))
+    assert result == fixture
+
+
+def test_repair_plan_command_passes() -> None:
+    code = main([
+        "repair-plan",
+        "--root",
+        "examples/synthetic-vault",
+        "--as-of",
+        "2026-07-15",
+    ])
+    assert code == 0
+
+
+def test_repair_plan_handles_missing_freshness_metadata(tmp_path: Path) -> None:
+    fixture = tmp_path / "synthetic-vault"
+    shutil.copytree(ROOT, fixture)
+    card_path = fixture / "cards" / "card-agent-memory.json"
+    card = json.loads(card_path.read_text(encoding="utf-8"))
+    card.pop("last_reviewed")
+    card.pop("review_interval_days")
+    card_path.write_text(json.dumps(card), encoding="utf-8")
+
+    result = repair_plan_report(fixture, as_of=date(2026, 6, 11))
+
+    assert result["passed"] is True
+    assert result["source_passed"] is False
+    assert result["status"] == "repair_plan_ready"
+    assert result["repair_steps"][0]["repair_step_id"] == "repair-step-stale-card-detection"
+
+
+def test_repair_plan_handles_validation_errors(tmp_path: Path) -> None:
+    fixture = tmp_path / "synthetic-vault"
+    shutil.copytree(ROOT, fixture)
+    card_path = fixture / "cards" / "card-agent-memory.json"
+    card = json.loads(card_path.read_text(encoding="utf-8"))
+    card["card_id"] = "Card_AgentMemory"
+    card_path.write_text(json.dumps(card), encoding="utf-8")
+
+    result = repair_plan_report(fixture, as_of=date(2026, 6, 11))
+
+    assert result["passed"] is True
+    assert result["source_passed"] is False
+    assert result["source_status"] == "validation_error"
+    assert result["repair_steps"][0]["repair_step_id"] == "repair-step-fix-fixture-shape"
 
 
 def test_pack_command_passes() -> None:

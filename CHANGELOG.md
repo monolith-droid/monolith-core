@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.2 - 2026-06-11
+
+- Add a public-safe repair plan schema and synthetic fixture.
+- Add `monolith-core repair-plan` for report-only repair planning from
+  validation blockers, low scorecard scores, stale-card warnings, and loader
+  errors.
+
 ## 0.2.1 - 2026-06-11
 
 - Add downstream dogfooding guidance for translating private adapter findings

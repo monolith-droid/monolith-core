@@ -1,0 +1,33 @@
+{
+  "repair_plan_id": "repair-plan-synthetic-core",
+  "passed": true,
+  "status": "repair_plan_ready",
+  "mode": "report_only",
+  "mutation_performed": false,
+  "root": "examples/synthetic-vault",
+  "as_of": "2026-07-15",
+  "source_status": "scorecard_ready",
+  "source_passed": true,
+  "source_refs": [
+    "scorecard-synthetic-core",
+    "examples/synthetic-vault/scorecard.json"
+  ],
+  "repair_step_count": 1,
+  "repair_steps": [
+    {
+      "repair_step_id": "repair-step-review-stale-cards",
+      "title": "Review stale cards",
+      "severity": "low",
+      "source_refs": ["cards/*.json"],
+      "evidence": {
+        "stale_card_ids": [
+          "card-agent-memory",
+          "card-branch-return"
+        ]
+      },
+      "recommended_action": "Review stale public-safe cards and update last_reviewed only after human-visible review."
+    }
+  ],
+  "blockers": [],
+  "warnings": []
+}

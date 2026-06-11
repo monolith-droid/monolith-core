@@ -312,6 +312,191 @@ def run_growth_queue(args: argparse.Namespace) -> int:
     return 0 if report["passed"] else 1
 
 
+def _repair_step(
+    step_id: str,
+    title: str,
+    severity: str,
+    source_refs: list[str],
+    evidence: dict[str, Any],
+    recommended_action: str,
+) -> dict[str, Any]:
+    return {
+        "repair_step_id": step_id,
+        "title": title,
+        "severity": severity,
+        "source_refs": source_refs,
+        "evidence": evidence,
+        "recommended_action": recommended_action,
+    }
+
+
+def _steps_from_validation_blockers(blockers: list[str]) -> list[dict[str, Any]]:
+    steps: list[dict[str, Any]] = []
+    for blocker in blockers:
+        key, _, raw_detail = blocker.partition(":")
+        details = [part for part in raw_detail.split(",") if part]
+        if key == "cards_missing_from_index":
+            steps.append(
+                _repair_step(
+                    "repair-step-add-cards-to-index",
+                    "Add missing cards to the knowledge index",
+                    "high",
+                    ["index.json", "cards/*.json"],
+                    {"missing_card_ids": details},
+                    "Add each public-safe card id to index.json with a relative synthetic path and tags.",
+                )
+            )
+        elif key == "index_refs_unknown_cards":
+            steps.append(
+                _repair_step(
+                    "repair-step-remove-unknown-index-refs",
+                    "Remove or create unknown index card references",
+                    "high",
+                    ["index.json", "cards/*.json"],
+                    {"unknown_card_ids": details},
+                    "Either add synthetic card fixtures for these ids or remove the stale index entries.",
+                )
+            )
+        elif key == "context_pack_refs_unknown_cards":
+            steps.append(
+                _repair_step(
+                    "repair-step-refresh-context-pack",
+                    "Refresh context-pack card references",
+                    "high",
+                    ["context-pack.json", "cards/*.json"],
+                    {"unknown_card_ids": details},
+                    "Update the context pack so every referenced card id exists in the public fixture.",
+                )
+            )
+        elif key == "branch_return_refs_unknown_cards":
+            steps.append(
+                _repair_step(
+                    "repair-step-refresh-branch-return-refs",
+                    "Refresh branch-return card references",
+                    "medium",
+                    ["branch-return.json", "cards/*.json"],
+                    {"unknown_card_ids": details},
+                    "Link branch-return findings back to known public-safe cards.",
+                )
+            )
+        else:
+            steps.append(
+                _repair_step(
+                    "repair-step-review-validation-blocker",
+                    "Review validation blocker",
+                    "high",
+                    ["synthetic fixture"],
+                    {"blocker": blocker},
+                    "Convert the validation blocker into a public-safe fixture or schema update.",
+                )
+            )
+    return steps
+
+
+def _steps_from_score_report(report: dict[str, Any]) -> list[dict[str, Any]]:
+    steps: list[dict[str, Any]] = []
+    steps.extend(_steps_from_validation_blockers(list(report["blockers"])))
+    for score in report["scores"]:
+        if score["status"] == "pass":
+            continue
+        steps.append(
+            _repair_step(
+                "repair-step-" + score["score_id"].removeprefix("score-"),
+                "Improve " + score["title"],
+                "medium",
+                list(score["source_refs"]),
+                {
+                    "score_id": score["score_id"],
+                    "score": score["score"],
+                    "threshold": score["threshold"],
+                    "evidence": score["evidence"],
+                },
+                score["next_action"],
+            )
+        )
+    for warning in report["warnings"]:
+        if warning.startswith("stale_cards_detected:"):
+            card_ids = [part for part in warning.partition(":")[2].split(",") if part]
+            steps.append(
+                _repair_step(
+                    "repair-step-review-stale-cards",
+                    "Review stale cards",
+                    "low",
+                    ["cards/*.json"],
+                    {"stale_card_ids": card_ids},
+                    "Review stale public-safe cards and update last_reviewed only after human-visible review.",
+                )
+            )
+        else:
+            steps.append(
+                _repair_step(
+                    "repair-step-review-score-warning",
+                    "Review score warning",
+                    "low",
+                    ["scorecard"],
+                    {"warning": warning},
+                    "Turn the warning into a public-safe schema, fixture, or documentation improvement.",
+                )
+            )
+    return steps
+
+
+def repair_plan_report(root: Path, as_of: date | None = None) -> dict[str, Any]:
+    as_of = as_of or date.today()
+    try:
+        source_report = score_root(root, as_of=as_of)
+        source_status = source_report["status"]
+        source_passed = source_report["passed"]
+        steps = _steps_from_score_report(source_report)
+        source_refs = ["scorecard-synthetic-core", "examples/synthetic-vault/scorecard.json"]
+    except ValidationError as exc:
+        source_status = "validation_error"
+        source_passed = False
+        steps = [
+            _repair_step(
+                "repair-step-fix-fixture-shape",
+                "Fix fixture shape",
+                "high",
+                ["synthetic fixture"],
+                {"error": str(exc)},
+                "Fix the public fixture so MONOLITH Core can load it before scoring repairs.",
+            )
+        ]
+        source_refs = ["validation_error"]
+
+    return {
+        "repair_plan_id": "repair-plan-synthetic-core",
+        "passed": True,
+        "status": "repair_plan_ready" if steps else "repair_not_needed",
+        "mode": "report_only",
+        "mutation_performed": False,
+        "root": _public_path(root),
+        "as_of": as_of.isoformat(),
+        "source_status": source_status,
+        "source_passed": source_passed,
+        "source_refs": source_refs,
+        "repair_step_count": len(steps),
+        "repair_steps": steps,
+        "blockers": [],
+        "warnings": [],
+    }
+
+
+def run_repair_plan(args: argparse.Namespace) -> int:
+    try:
+        as_of = date.fromisoformat(args.as_of) if args.as_of else None
+    except ValueError:
+        _print_json({"passed": False, "status": "validation_error", "blockers": ["as_of_must_use_yyyy_mm_dd"]})
+        return 1
+    report = repair_plan_report(Path(args.root), as_of=as_of)
+    if args.out:
+        out = Path(args.out)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    _print_json(report)
+    return 0
+
+
 def run_curate_dry_run(args: argparse.Namespace) -> int:
     result = validate_root(Path(args.root))
     report = {
@@ -366,6 +551,12 @@ def build_parser() -> argparse.ArgumentParser:
     growth.add_argument("--limit", type=int, default=3)
     growth.add_argument("--out")
     growth.set_defaults(func=run_growth_queue)
+
+    repair = subcommands.add_parser("repair-plan", help="Render a report-only repair plan from validation or score results.")
+    repair.add_argument("--root", required=True)
+    repair.add_argument("--as-of", help="Evaluate freshness as of YYYY-MM-DD.")
+    repair.add_argument("--out")
+    repair.set_defaults(func=run_repair_plan)
 
     curate = subcommands.add_parser("curate-dry-run", help="Render a report-only curator plan.")
     curate.add_argument("--root", required=True)
