@@ -1,0 +1,30 @@
+{
+  "diff_id": "diff-synthetic-context-pack",
+  "passed": true,
+  "status": "context_pack_changed",
+  "mode": "report_only",
+  "mutation_performed": false,
+  "base_pack": {
+    "path": "examples/synthetic-vault/context-pack.json",
+    "pack_id": "pack-monolith-core-mvp",
+    "card_count": 2
+  },
+  "candidate_pack": {
+    "path": "examples/synthetic-vault/context-pack-expanded.json",
+    "pack_id": "pack-monolith-core-expanded",
+    "card_count": 3
+  },
+  "added_card_ids": [
+    "card-synthetic-adapter-example"
+  ],
+  "removed_card_ids": [],
+  "unchanged_card_ids": [
+    "card-agent-memory",
+    "card-branch-return"
+  ],
+  "added_count": 1,
+  "removed_count": 0,
+  "unchanged_count": 2,
+  "blockers": [],
+  "warnings": []
+}

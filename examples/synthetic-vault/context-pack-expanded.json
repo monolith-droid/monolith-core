@@ -1,0 +1,9 @@
+{
+  "pack_id": "pack-monolith-core-expanded",
+  "purpose": "Recover the public MONOLITH Core MVP context plus the synthetic adapter example.",
+  "card_ids": [
+    "card-agent-memory",
+    "card-branch-return",
+    "card-synthetic-adapter-example"
+  ]
+}
