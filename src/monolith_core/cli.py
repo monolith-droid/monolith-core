@@ -223,6 +223,171 @@ def run_context_pack_diff(args: argparse.Namespace) -> int:
     return 0
 
 
+def _readiness_check(
+    check_id: str,
+    title: str,
+    passed: bool,
+    status: str,
+    evidence: dict[str, Any],
+    next_action: str,
+) -> dict[str, Any]:
+    return {
+        "check_id": check_id,
+        "title": title,
+        "passed": passed,
+        "status": status,
+        "evidence": evidence,
+        "next_action": next_action,
+    }
+
+
+def release_readiness_report(
+    root: Path,
+    queue_path: Path,
+    base_pack_path: Path,
+    candidate_pack_path: Path,
+    as_of: date | None = None,
+) -> dict[str, Any]:
+    as_of = as_of or date.today()
+    validation = validation_summary_report(root)
+    try:
+        score = score_root(root, as_of=as_of)
+    except ValidationError as exc:
+        score = {
+            "passed": False,
+            "status": "validation_error",
+            "scorecard_id": "scorecard-unavailable",
+            "overall_score": 0.0,
+            "low_score_count": 1,
+            "warnings": [str(exc)],
+        }
+    try:
+        growth = growth_queue_report(queue_path, limit=1)
+    except ValidationError as exc:
+        growth = {
+            "passed": False,
+            "status": "validation_error",
+            "queue_id": "queue-unavailable",
+            "candidate_count": 0,
+            "top_ideas": [],
+            "warnings": [str(exc)],
+        }
+    try:
+        diff = context_pack_diff_report(base_pack_path, candidate_pack_path)
+    except ValidationError as exc:
+        diff = {
+            "passed": False,
+            "status": "validation_error",
+            "diff_id": "diff-unavailable",
+            "added_count": 0,
+            "removed_count": 0,
+            "unchanged_count": 0,
+            "warnings": [str(exc)],
+        }
+
+    checks = [
+        _readiness_check(
+            "readiness-check-validation-summary",
+            "Validation Summary",
+            validation["source_passed"],
+            validation["source_status"],
+            {
+                "summary_id": validation["summary_id"],
+                "blocker_count": validation["blocker_count"],
+                "counts": validation["counts"],
+            },
+            "Resolve validation blockers before release." if not validation["source_passed"] else "Keep validation summary clean.",
+        ),
+        _readiness_check(
+            "readiness-check-scorecard",
+            "Memory Scorecard",
+            score["passed"],
+            score["status"],
+            {
+                "scorecard_id": score["scorecard_id"],
+                "overall_score": score["overall_score"],
+                "low_score_count": score["low_score_count"],
+                "warning_count": len(score["warnings"]),
+            },
+            "Improve low scores or review warnings before release." if not score["passed"] else "Keep scorecard passing.",
+        ),
+        _readiness_check(
+            "readiness-check-growth-queue",
+            "Growth Queue",
+            growth["passed"],
+            growth["status"],
+            {
+                "queue_id": growth["queue_id"],
+                "candidate_count": growth["candidate_count"],
+                "top_idea_ids": [idea["idea_id"] for idea in growth["top_ideas"]],
+            },
+            "Add at least one public-safe candidate idea." if not growth["passed"] else "Keep the next public-safe idea visible.",
+        ),
+        _readiness_check(
+            "readiness-check-context-pack-diff",
+            "Context Pack Diff",
+            diff["passed"],
+            diff["status"],
+            {
+                "diff_id": diff["diff_id"],
+                "added_count": diff["added_count"],
+                "removed_count": diff["removed_count"],
+                "unchanged_count": diff["unchanged_count"],
+            },
+            "Review context-pack removals before release." if diff["removed_count"] else "Review added context before release.",
+        ),
+    ]
+    blockers = [
+        check["check_id"] + ":" + check["status"]
+        for check in checks
+        if not check["passed"]
+    ]
+    warnings = (
+        [f"context_pack_changes_present:added={diff['added_count']},removed={diff['removed_count']}"]
+        if diff["added_count"] or diff["removed_count"]
+        else []
+    )
+    return {
+        "readiness_id": "readiness-synthetic-release",
+        "passed": not blockers,
+        "status": "release_ready" if not blockers else "release_blocked",
+        "mode": "report_only",
+        "mutation_performed": False,
+        "root": _public_path(root),
+        "as_of": as_of.isoformat(),
+        "check_count": len(checks),
+        "passed_check_count": len([check for check in checks if check["passed"]]),
+        "checks": checks,
+        "blockers": blockers,
+        "warnings": warnings,
+        "next_actions": [
+            "publish_after_ci_passes" if not blockers else "resolve_release_readiness_blockers",
+            "keep_private_adapter_details_out_of_public_release",
+        ],
+    }
+
+
+def run_release_readiness(args: argparse.Namespace) -> int:
+    try:
+        as_of = date.fromisoformat(args.as_of) if args.as_of else None
+    except ValueError:
+        _print_json({"passed": False, "status": "validation_error", "blockers": ["as_of_must_use_yyyy_mm_dd"]})
+        return 1
+    report = release_readiness_report(
+        Path(args.root),
+        Path(args.queue),
+        Path(args.base_pack),
+        Path(args.candidate_pack),
+        as_of=as_of,
+    )
+    if args.out:
+        out = Path(args.out)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    _print_json(report)
+    return 0 if report["passed"] else 1
+
+
 def run_branch_return_check(args: argparse.Namespace) -> int:
     report = load_branch_return(Path(args.report))
     blockers = []
@@ -798,6 +963,18 @@ def build_parser() -> argparse.ArgumentParser:
     diff.add_argument("--candidate", required=True)
     diff.add_argument("--out")
     diff.set_defaults(func=run_context_pack_diff)
+
+    readiness = subcommands.add_parser(
+        "release-readiness",
+        help="Render a report-only release readiness summary.",
+    )
+    readiness.add_argument("--root", required=True)
+    readiness.add_argument("--queue", required=True)
+    readiness.add_argument("--base-pack", required=True)
+    readiness.add_argument("--candidate-pack", required=True)
+    readiness.add_argument("--as-of", help="Evaluate freshness as of YYYY-MM-DD.")
+    readiness.add_argument("--out")
+    readiness.set_defaults(func=run_release_readiness)
 
     branch = subcommands.add_parser("branch-return-check", help="Validate a branch-return report.")
     branch.add_argument("--report", required=True)

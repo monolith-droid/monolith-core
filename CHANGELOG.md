@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.6 - 2026-06-12
+
+- Add `monolith-core release-readiness` for report-only release readiness
+  checks across validation summary, scorecard, growth queue, and context-pack
+  diff signals.
+- Add release readiness schema, synthetic fixture, and docs.
+
 ## 0.2.5 - 2026-06-11
 
 - Add `monolith-core validation-summary` for compact report-only validation

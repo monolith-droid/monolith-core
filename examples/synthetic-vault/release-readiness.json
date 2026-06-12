@@ -1,0 +1,78 @@
+{
+  "readiness_id": "readiness-synthetic-release",
+  "passed": true,
+  "status": "release_ready",
+  "mode": "report_only",
+  "mutation_performed": false,
+  "root": "examples/synthetic-vault",
+  "as_of": "2026-06-12",
+  "check_count": 4,
+  "passed_check_count": 4,
+  "checks": [
+    {
+      "check_id": "readiness-check-validation-summary",
+      "title": "Validation Summary",
+      "passed": true,
+      "status": "valid",
+      "evidence": {
+        "summary_id": "summary-synthetic-validation",
+        "blocker_count": 0,
+        "counts": {
+          "card_count": 2,
+          "index_entry_count": 2,
+          "context_pack_card_count": 2,
+          "branch_return_finding_count": 1
+        }
+      },
+      "next_action": "Keep validation summary clean."
+    },
+    {
+      "check_id": "readiness-check-scorecard",
+      "title": "Memory Scorecard",
+      "passed": true,
+      "status": "scorecard_ready",
+      "evidence": {
+        "scorecard_id": "scorecard-synthetic-core",
+        "overall_score": 100.0,
+        "low_score_count": 0,
+        "warning_count": 0
+      },
+      "next_action": "Keep scorecard passing."
+    },
+    {
+      "check_id": "readiness-check-growth-queue",
+      "title": "Growth Queue",
+      "passed": true,
+      "status": "growth_queue_ready",
+      "evidence": {
+        "queue_id": "queue-synthetic-self-growth",
+        "candidate_count": 1,
+        "top_idea_ids": [
+          "idea-adapter-boundary-readiness-checklist"
+        ]
+      },
+      "next_action": "Keep the next public-safe idea visible."
+    },
+    {
+      "check_id": "readiness-check-context-pack-diff",
+      "title": "Context Pack Diff",
+      "passed": true,
+      "status": "context_pack_changed",
+      "evidence": {
+        "diff_id": "diff-synthetic-context-pack",
+        "added_count": 1,
+        "removed_count": 0,
+        "unchanged_count": 2
+      },
+      "next_action": "Review added context before release."
+    }
+  ],
+  "blockers": [],
+  "warnings": [
+    "context_pack_changes_present:added=1,removed=0"
+  ],
+  "next_actions": [
+    "publish_after_ci_passes",
+    "keep_private_adapter_details_out_of_public_release"
+  ]
+}

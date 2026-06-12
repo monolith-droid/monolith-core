@@ -92,12 +92,28 @@
         "docs/validation-summary.md",
         "docs/context-pack-diff.md"
       ],
+      "status": "adopted",
+      "public_safety": "generalized",
+      "impact": 4,
+      "effort": 3,
+      "confidence": 4,
+      "next_action": "Use release-readiness before publishing public releases."
+    },
+    {
+      "idea_id": "idea-adapter-boundary-readiness-checklist",
+      "title": "Add adapter boundary readiness checklist",
+      "summary": "Make v0.3 adapter-boundary work visible with public-safe checks for local implementation, operational use, and downstream returns without private data.",
+      "source_refs": [
+        "docs/adapter-boundary.md",
+        "docs/downstream-dogfooding.md",
+        "docs/release-readiness.md"
+      ],
       "status": "candidate",
       "public_safety": "generalized",
       "impact": 4,
       "effort": 3,
       "confidence": 4,
-      "next_action": "Add a report-only release readiness fixture and CLI."
+      "next_action": "Add a v0.3 adapter boundary readiness checklist and docs."
     },
     {
       "idea_id": "idea-downstream-dogfooding-docs",

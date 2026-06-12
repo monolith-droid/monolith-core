@@ -87,6 +87,16 @@ This project should become a separate public repository:
   execution, external model calls, worker dispatch, notification publishing, or
   private data reads.
 
+## v0.2.6 Scope
+
+- Public release readiness schema and synthetic output fixture.
+- `monolith-core release-readiness` report-only CLI command.
+- Final release checks across validation summary, scorecard, growth queue, and
+  context-pack diff signals.
+- No release publishing, issue creation, file mutation, vault writes, Drive
+  sync, scheduler execution, external model calls, worker dispatch,
+  notification publishing, or private data reads.
+
 ## First Issues
 
 1. Define stable card and index ids. Done in `v0.1.1`.
@@ -104,6 +114,7 @@ This project should become a separate public repository:
 8. Add a synthetic adapter conversion example. Covered first by `v0.2.3`.
 9. Add report-only context-pack diffs. Covered first by `v0.2.4`.
 10. Add report-only validation summaries. Covered first by `v0.2.5`.
+11. Add report-only release readiness summaries. Covered first by `v0.2.6`.
 
 ## Relationship To I/O Safety Kit
 
