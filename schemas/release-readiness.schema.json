@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MONOLITH Core Release Readiness",
+  "type": "object",
+  "required": [
+    "readiness_id",
+    "passed",
+    "status",
+    "mode",
+    "mutation_performed",
+    "root",
+    "as_of",
+    "check_count",
+    "passed_check_count",
+    "checks",
+    "blockers",
+    "warnings",
+    "next_actions"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "readiness_id": {
+      "type": "string",
+      "pattern": "^readiness-[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "passed": { "type": "boolean" },
+    "status": {
+      "type": "string",
+      "enum": ["release_ready", "release_blocked"]
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["report_only"]
+    },
+    "mutation_performed": { "type": "boolean", "const": false },
+    "root": { "type": "string", "minLength": 1 },
+    "as_of": { "type": "string", "format": "date" },
+    "check_count": { "type": "integer", "minimum": 0 },
+    "passed_check_count": { "type": "integer", "minimum": 0 },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "check_id",
+          "title",
+          "passed",
+          "status",
+          "evidence",
+          "next_action"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "check_id": {
+            "type": "string",
+            "pattern": "^readiness-check-[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
+          "title": { "type": "string", "minLength": 1 },
+          "passed": { "type": "boolean" },
+          "status": { "type": "string", "minLength": 1 },
+          "evidence": { "type": "object" },
+          "next_action": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "warnings": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "next_actions": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1
+    }
+  }
+}

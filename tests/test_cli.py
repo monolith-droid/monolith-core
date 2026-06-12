@@ -10,6 +10,7 @@ from monolith_core.cli import (
     context_pack_diff_report,
     growth_queue_report,
     main,
+    release_readiness_report,
     repair_plan_report,
     score_root,
     validate_root,
@@ -148,10 +149,10 @@ def test_growth_queue_report_ranks_candidate_ideas() -> None:
     assert report["status"] == "growth_queue_ready"
     assert report["mode"] == "report_only"
     assert report["mutation_performed"] is False
-    assert report["idea_count"] == 7
+    assert report["idea_count"] == 8
     assert report["candidate_count"] == 1
     assert report["selected_count"] == 1
-    assert report["top_ideas"][0]["idea_id"] == "idea-release-readiness-report"
+    assert report["top_ideas"][0]["idea_id"] == "idea-adapter-boundary-readiness-checklist"
     assert report["top_ideas"][0]["priority_score"] == 21.33
     assert report["blockers"] == []
     assert report["warnings"] == []
@@ -297,6 +298,57 @@ def test_context_pack_diff_detects_removed_cards(tmp_path: Path) -> None:
     assert result["added_card_ids"] == []
     assert result["removed_card_ids"] == ["card-branch-return"]
     assert result["unchanged_card_ids"] == ["card-agent-memory"]
+
+
+def test_release_readiness_fixture_matches_report_command() -> None:
+    fixture = json.loads((ROOT / "release-readiness.json").read_text(encoding="utf-8"))
+    result = release_readiness_report(
+        ROOT,
+        ROOT / "growth-ideas.json",
+        ROOT / "context-pack.json",
+        ROOT / "context-pack-expanded.json",
+        as_of=date(2026, 6, 12),
+    )
+    assert result == fixture
+
+
+def test_release_readiness_command_passes() -> None:
+    code = main([
+        "release-readiness",
+        "--root",
+        "examples/synthetic-vault",
+        "--queue",
+        "examples/synthetic-vault/growth-ideas.json",
+        "--base-pack",
+        "examples/synthetic-vault/context-pack.json",
+        "--candidate-pack",
+        "examples/synthetic-vault/context-pack-expanded.json",
+        "--as-of",
+        "2026-06-12",
+    ])
+    assert code == 0
+
+
+def test_release_readiness_blocks_on_validation_errors(tmp_path: Path) -> None:
+    fixture = tmp_path / "synthetic-vault"
+    shutil.copytree(ROOT, fixture)
+    card_path = fixture / "cards" / "card-agent-memory.json"
+    card = json.loads(card_path.read_text(encoding="utf-8"))
+    card["card_id"] = "Card_AgentMemory"
+    card_path.write_text(json.dumps(card), encoding="utf-8")
+
+    result = release_readiness_report(
+        fixture,
+        fixture / "growth-ideas.json",
+        fixture / "context-pack.json",
+        fixture / "context-pack-expanded.json",
+        as_of=date(2026, 6, 12),
+    )
+
+    assert result["passed"] is False
+    assert result["status"] == "release_blocked"
+    assert result["passed_check_count"] == 2
+    assert result["blockers"][0].startswith("readiness-check-validation-summary:")
 
 
 def test_branch_return_command_passes() -> None:
