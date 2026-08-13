@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MONOLITH Core Adapter Readiness Profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "adapter_id", "summary", "synthetic", "mode", "mutation_performed", "lanes", "downstream_return"],
+  "properties": {
+    "schema_version": {"const": "monolith.adapter-readiness.v1"},
+    "adapter_id": {"type": "string", "pattern": "^adapter-[a-z0-9]+(?:-[a-z0-9]+)*$"},
+    "summary": {"type": "string", "minLength": 1},
+    "synthetic": {"const": true},
+    "mode": {"const": "report_only"},
+    "mutation_performed": {"const": false},
+    "lanes": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["lane_id", "platform_scope", "public_refs", "capabilities", "authority"],
+        "properties": {
+          "lane_id": {"enum": ["implementation", "operations"]},
+          "platform_scope": {"const": "cross_platform"},
+          "public_refs": {"type": "array", "minItems": 1, "items": {"type": "string", "pattern": "^[A-Za-z0-9._/-]+$"}},
+          "capabilities": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+          "authority": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["real_vault_access", "external_services", "scheduler", "notifications", "secrets"],
+            "properties": {
+              "real_vault_access": {"const": false}, "external_services": {"const": false},
+              "scheduler": {"const": false}, "notifications": {"const": false}, "secrets": {"const": false}
+            }
+          }
+        }
+      }
+    },
+    "downstream_return": {
+      "type": "object", "additionalProperties": false,
+      "required": ["public_artifacts", "private_evidence_copied"],
+      "properties": {
+        "public_artifacts": {"type": "array", "minItems": 1, "items": {"enum": ["issue", "schema", "fixture", "test", "release_note"]}},
+        "private_evidence_copied": {"const": false}
+      }
+    }
+  }
+}

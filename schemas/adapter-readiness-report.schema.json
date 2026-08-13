@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MONOLITH Core Adapter Readiness Report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["readiness_id", "passed", "status", "mode", "mutation_performed", "adapter_id", "lane_count", "lane_ids", "check_count", "passed_check_count", "checks", "blockers", "warnings", "next_actions"],
+  "properties": {
+    "readiness_id": {"type": "string", "pattern": "^adapter-readiness-[a-z0-9]+(?:-[a-z0-9]+)*$"},
+    "passed": {"type": "boolean"},
+    "status": {"enum": ["adapter_readiness_ready", "adapter_readiness_blocked"]},
+    "mode": {"const": "report_only"},
+    "mutation_performed": {"const": false},
+    "adapter_id": {"type": "string", "pattern": "^adapter-[a-z0-9]+(?:-[a-z0-9]+)*$"},
+    "lane_count": {"type": "integer", "minimum": 0},
+    "lane_ids": {"type": "array", "items": {"enum": ["implementation", "operations"]}},
+    "check_count": {"type": "integer", "minimum": 1},
+    "passed_check_count": {"type": "integer", "minimum": 0},
+    "checks": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["check_id", "passed", "status"], "properties": {"check_id": {"type": "string"}, "passed": {"type": "boolean"}, "status": {"enum": ["passed", "blocked"]}}}},
+    "blockers": {"type": "array", "items": {"type": "string"}},
+    "warnings": {"type": "array", "items": {"type": "string"}},
+    "next_actions": {"type": "array", "minItems": 1, "items": {"type": "string"}}
+  }
+}

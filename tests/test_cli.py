@@ -5,8 +5,11 @@ import shutil
 from datetime import date
 from pathlib import Path
 
+from jsonschema import Draft202012Validator
+
 from monolith_core.cli import (
     adapter_example_report,
+    adapter_readiness_report,
     context_pack_diff_report,
     growth_queue_report,
     main,
@@ -149,11 +152,11 @@ def test_growth_queue_report_ranks_candidate_ideas() -> None:
     assert report["status"] == "growth_queue_ready"
     assert report["mode"] == "report_only"
     assert report["mutation_performed"] is False
-    assert report["idea_count"] == 8
+    assert report["idea_count"] == 9
     assert report["candidate_count"] == 1
     assert report["selected_count"] == 1
-    assert report["top_ideas"][0]["idea_id"] == "idea-adapter-boundary-readiness-checklist"
-    assert report["top_ideas"][0]["priority_score"] == 21.33
+    assert report["top_ideas"][0]["idea_id"] == "idea-stable-contract-migration-guide"
+    assert report["top_ideas"][0]["priority_score"] == 26.67
     assert report["blockers"] == []
     assert report["warnings"] == []
 
@@ -256,6 +259,79 @@ def test_adapter_example_rejects_missing_frontmatter(tmp_path: Path) -> None:
         str(note),
     ])
     assert code == 1
+
+
+def test_adapter_readiness_fixture_matches_report_command() -> None:
+    fixture = json.loads((ROOT / "adapter-readiness-report.json").read_text(encoding="utf-8"))
+    result = adapter_readiness_report(ROOT / "adapter-readiness.json")
+    assert result == fixture
+
+
+def test_adapter_readiness_profile_and_report_match_schemas() -> None:
+    profile = json.loads((ROOT / "adapter-readiness.json").read_text(encoding="utf-8"))
+    report = json.loads((ROOT / "adapter-readiness-report.json").read_text(encoding="utf-8"))
+    profile_schema = json.loads(Path("schemas/adapter-readiness-profile.schema.json").read_text(encoding="utf-8"))
+    report_schema = json.loads(Path("schemas/adapter-readiness-report.schema.json").read_text(encoding="utf-8"))
+
+    Draft202012Validator.check_schema(profile_schema)
+    Draft202012Validator(profile_schema).validate(profile)
+    Draft202012Validator.check_schema(report_schema)
+    Draft202012Validator(report_schema).validate(report)
+
+
+def test_adapter_readiness_command_passes() -> None:
+    code = main([
+        "adapter-readiness",
+        "--adapter",
+        "examples/synthetic-vault/adapter-readiness.json",
+    ])
+    assert code == 0
+
+
+def test_adapter_readiness_rejects_private_reference_without_echoing_it(tmp_path: Path, capsys) -> None:
+    profile = json.loads((ROOT / "adapter-readiness.json").read_text(encoding="utf-8"))
+    private_value = "../private-note.md"
+    profile["lanes"][0]["public_refs"] = [private_value]
+    path = tmp_path / "adapter.json"
+    path.write_text(json.dumps(profile), encoding="utf-8")
+
+    code = main(["adapter-readiness", "--adapter", str(path)])
+    output = capsys.readouterr().out
+    result = json.loads(output)
+
+    assert code == 1
+    assert result["status"] == "adapter_readiness_blocked"
+    assert "private_reference_detected" in result["blockers"]
+    assert private_value not in output
+
+
+def test_adapter_readiness_rejects_private_authority(tmp_path: Path) -> None:
+    profile = json.loads((ROOT / "adapter-readiness.json").read_text(encoding="utf-8"))
+    profile["lanes"][1]["authority"]["scheduler"] = True
+    path = tmp_path / "adapter.json"
+    path.write_text(json.dumps(profile), encoding="utf-8")
+
+    result = adapter_readiness_report(path)
+
+    assert result["passed"] is False
+    assert "private_adapter_authority_not_allowed" in result["blockers"]
+    assert result["warnings"] == []
+
+
+def test_blocked_adapter_readiness_fixture_fails_closed_without_private_value(capsys) -> None:
+    code = main([
+        "adapter-readiness",
+        "--adapter",
+        "examples/synthetic-vault/adapter-readiness-blocked.json",
+    ])
+    output = capsys.readouterr().out
+    result = json.loads(output)
+
+    assert code == 1
+    assert result["status"] == "adapter_readiness_blocked"
+    assert "private_reference_detected" in result["blockers"]
+    assert "private_adapter_authority_not_allowed" in result["blockers"]
+    assert "../private-note.md" not in output
 
 
 def test_pack_command_passes() -> None:
