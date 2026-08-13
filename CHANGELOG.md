@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.3.0 - 2026-08-13
 
 - Add a report-only adapter readiness contract with separate profile and report
   schemas.
