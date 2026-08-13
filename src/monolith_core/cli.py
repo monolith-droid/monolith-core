@@ -911,6 +911,169 @@ def run_adapter_example(args: argparse.Namespace) -> int:
     return 0
 
 
+def _adapter_strings(value: Any) -> list[str]:
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, list):
+        return [item for part in value for item in _adapter_strings(part)]
+    if isinstance(value, dict):
+        return [item for part in value.values() for item in _adapter_strings(part)]
+    return []
+
+
+def _private_looking_adapter_reference(value: str) -> bool:
+    normalized = value.strip().replace("\\", "/")
+    lowered = normalized.lower()
+    return (
+        normalized.startswith("/")
+        or (len(normalized) >= 3 and normalized[1:3] == ":/")
+        or "../" in normalized
+        or lowered.startswith(("http://", "https://", "file://"))
+        or any(
+            marker in lowered
+            for marker in (
+                "api_key",
+                "approval_id",
+                "access_token",
+                "account_id",
+                "drive_id",
+                "secret_value",
+                "service_endpoint",
+            )
+        )
+    )
+
+
+def adapter_readiness_report(profile_path: Path) -> dict[str, Any]:
+    profile = json.loads(profile_path.read_text(encoding="utf-8"))
+    if not isinstance(profile, dict):
+        raise ValidationError("adapter readiness profile must be a JSON object")
+
+    blockers: list[str] = []
+    warnings: list[str] = []
+    if profile.get("schema_version") != "monolith.adapter-readiness.v1":
+        blockers.append("unsupported_adapter_readiness_schema")
+    adapter_id = profile.get("adapter_id")
+    if not isinstance(adapter_id, str) or not adapter_id.startswith("adapter-"):
+        blockers.append("adapter_id_required")
+        adapter_id = "adapter-unavailable"
+    if profile.get("synthetic") is not True:
+        blockers.append("synthetic_profile_required")
+    if profile.get("mode") != "report_only":
+        blockers.append("report_only_mode_required")
+    if profile.get("mutation_performed") is not False:
+        blockers.append("mutation_must_be_false")
+
+    lanes = profile.get("lanes")
+    if not isinstance(lanes, list) or not lanes:
+        blockers.append("adapter_lanes_required")
+        lanes = []
+    lane_ids: list[str] = []
+    for lane in lanes:
+        if not isinstance(lane, dict):
+            blockers.append("adapter_lane_must_be_object")
+            continue
+        lane_id = lane.get("lane_id")
+        if lane_id not in {"implementation", "operations"}:
+            blockers.append("unsupported_adapter_lane")
+        else:
+            lane_ids.append(lane_id)
+        if lane.get("platform_scope") != "cross_platform":
+            blockers.append("cross_platform_scope_required")
+        refs = lane.get("public_refs")
+        if not isinstance(refs, list) or not refs:
+            blockers.append("public_adapter_references_required")
+        capabilities = lane.get("capabilities")
+        if not isinstance(capabilities, list) or not capabilities:
+            blockers.append("adapter_capabilities_required")
+        authority = lane.get("authority")
+        if not isinstance(authority, dict):
+            blockers.append("adapter_authority_declaration_required")
+        elif any(authority.get(key) is not False for key in (
+            "real_vault_access",
+            "external_services",
+            "scheduler",
+            "notifications",
+            "secrets",
+        )):
+            blockers.append("private_adapter_authority_not_allowed")
+
+    if sorted(lane_ids) != ["implementation", "operations"]:
+        blockers.append("implementation_and_operations_lanes_required")
+
+    downstream = profile.get("downstream_return")
+    if not isinstance(downstream, dict):
+        blockers.append("downstream_return_contract_required")
+    else:
+        artifacts = downstream.get("public_artifacts")
+        if not isinstance(artifacts, list) or not artifacts:
+            blockers.append("public_return_artifacts_required")
+        if downstream.get("private_evidence_copied") is not False:
+            blockers.append("private_evidence_copy_not_allowed")
+
+    if any(_private_looking_adapter_reference(value) for value in _adapter_strings(profile)):
+        blockers.append("private_reference_detected")
+
+    blockers = list(dict.fromkeys(blockers))
+    checks = [
+        {
+            "check_id": "adapter-check-synthetic-profile",
+            "passed": "synthetic_profile_required" not in blockers,
+            "status": "passed" if "synthetic_profile_required" not in blockers else "blocked",
+        },
+        {
+            "check_id": "adapter-check-report-only",
+            "passed": not any(item in blockers for item in ("report_only_mode_required", "mutation_must_be_false")),
+            "status": "passed" if not any(item in blockers for item in ("report_only_mode_required", "mutation_must_be_false")) else "blocked",
+        },
+        {
+            "check_id": "adapter-check-cross-platform-lanes",
+            "passed": not any(item in blockers for item in ("adapter_lanes_required", "unsupported_adapter_lane", "cross_platform_scope_required", "implementation_and_operations_lanes_required")),
+            "status": "passed" if not any(item in blockers for item in ("adapter_lanes_required", "unsupported_adapter_lane", "cross_platform_scope_required", "implementation_and_operations_lanes_required")) else "blocked",
+        },
+        {
+            "check_id": "adapter-check-private-boundary",
+            "passed": not any(item in blockers for item in ("private_adapter_authority_not_allowed", "private_reference_detected", "private_evidence_copy_not_allowed")),
+            "status": "passed" if not any(item in blockers for item in ("private_adapter_authority_not_allowed", "private_reference_detected", "private_evidence_copy_not_allowed")) else "blocked",
+        },
+        {
+            "check_id": "adapter-check-downstream-return",
+            "passed": not any(item in blockers for item in ("downstream_return_contract_required", "public_return_artifacts_required", "private_evidence_copy_not_allowed")),
+            "status": "passed" if not any(item in blockers for item in ("downstream_return_contract_required", "public_return_artifacts_required", "private_evidence_copy_not_allowed")) else "blocked",
+        },
+    ]
+    passed = not blockers
+    return {
+        "readiness_id": "adapter-readiness-synthetic-cross-platform",
+        "passed": passed,
+        "status": "adapter_readiness_ready" if passed else "adapter_readiness_blocked",
+        "mode": "report_only",
+        "mutation_performed": False,
+        "adapter_id": adapter_id,
+        "lane_count": len(lane_ids),
+        "lane_ids": lane_ids,
+        "check_count": len(checks),
+        "passed_check_count": len([check for check in checks if check["passed"]]),
+        "checks": checks,
+        "blockers": blockers,
+        "warnings": warnings,
+        "next_actions": [
+            "keep_private_adapter_details_out_of_public_artifacts" if passed else "resolve_adapter_readiness_blockers",
+            "return_generalized_findings_as_public_issues_schemas_fixtures_or_tests",
+        ],
+    }
+
+
+def run_adapter_readiness(args: argparse.Namespace) -> int:
+    report = adapter_readiness_report(Path(args.adapter))
+    if args.out:
+        out = Path(args.out)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    _print_json(report)
+    return 0 if report["passed"] else 1
+
+
 def run_curate_dry_run(args: argparse.Namespace) -> int:
     result = validate_root(Path(args.root))
     report = {
@@ -1005,6 +1168,14 @@ def build_parser() -> argparse.ArgumentParser:
     adapter.add_argument("--note", required=True)
     adapter.add_argument("--out")
     adapter.set_defaults(func=run_adapter_example)
+
+    adapter_readiness = subcommands.add_parser(
+        "adapter-readiness",
+        help="Check a synthetic adapter profile against the public/private boundary.",
+    )
+    adapter_readiness.add_argument("--adapter", required=True)
+    adapter_readiness.add_argument("--out")
+    adapter_readiness.set_defaults(func=run_adapter_readiness)
 
     curate = subcommands.add_parser("curate-dry-run", help="Render a report-only curator plan.")
     curate.add_argument("--root", required=True)

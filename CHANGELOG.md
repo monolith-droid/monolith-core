@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Add a report-only adapter readiness contract with separate profile and report
+  schemas.
+- Reject private-looking references and runtime authority without echoing the
+  rejected values.
+- Add synthetic implementation and operations lanes plus public handoff docs.
+
 ## 0.2.6 - 2026-06-12
 
 - Add `monolith-core release-readiness` for report-only release readiness

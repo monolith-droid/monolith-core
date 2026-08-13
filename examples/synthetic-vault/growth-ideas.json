@@ -108,12 +108,28 @@
         "docs/downstream-dogfooding.md",
         "docs/release-readiness.md"
       ],
-      "status": "candidate",
+      "status": "adopted",
       "public_safety": "generalized",
       "impact": 4,
       "effort": 3,
       "confidence": 4,
-      "next_action": "Add a v0.3 adapter boundary readiness checklist and docs."
+      "next_action": "Keep adapter readiness profiles synthetic, cross-platform, and report-only."
+    },
+    {
+      "idea_id": "idea-stable-contract-migration-guide",
+      "title": "Add stable contract migration guidance",
+      "summary": "Prepare the path from the v0 adapter schemas to stable v1 card, index, context-pack, and adapter contracts.",
+      "source_refs": [
+        "docs/id-conventions.md",
+        "docs/adapter-readiness.md",
+        "schemas/adapter-readiness-profile.schema.json"
+      ],
+      "status": "candidate",
+      "public_safety": "generalized",
+      "impact": 5,
+      "effort": 3,
+      "confidence": 4,
+      "next_action": "Document compatible additions, breaking changes, and synthetic migration fixtures before v1."
     },
     {
       "idea_id": "idea-downstream-dogfooding-docs",

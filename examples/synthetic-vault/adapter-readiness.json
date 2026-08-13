@@ -1,0 +1,58 @@
+{
+  "schema_version": "monolith.adapter-readiness.v1",
+  "adapter_id": "adapter-synthetic-cross-platform",
+  "summary": "Synthetic adapter profile for public contract and operations checks.",
+  "synthetic": true,
+  "mode": "report_only",
+  "mutation_performed": false,
+  "lanes": [
+    {
+      "lane_id": "implementation",
+      "platform_scope": "cross_platform",
+      "public_refs": [
+        "schemas/knowledge-card.schema.json",
+        "schemas/context-pack.schema.json"
+      ],
+      "capabilities": [
+        "validate_contracts",
+        "render_report"
+      ],
+      "authority": {
+        "real_vault_access": false,
+        "external_services": false,
+        "scheduler": false,
+        "notifications": false,
+        "secrets": false
+      }
+    },
+    {
+      "lane_id": "operations",
+      "platform_scope": "cross_platform",
+      "public_refs": [
+        "docs/adapter-boundary.md",
+        "docs/downstream-dogfooding.md"
+      ],
+      "capabilities": [
+        "preserve_array_fields",
+        "report_side_effects_false"
+      ],
+      "authority": {
+        "real_vault_access": false,
+        "external_services": false,
+        "scheduler": false,
+        "notifications": false,
+        "secrets": false
+      }
+    }
+  ],
+  "downstream_return": {
+    "public_artifacts": [
+      "issue",
+      "schema",
+      "fixture",
+      "test",
+      "release_note"
+    ],
+    "private_evidence_copied": false
+  }
+}

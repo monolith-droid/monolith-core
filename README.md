@@ -61,6 +61,9 @@ See [Release readiness](docs/release-readiness.md) for a compact report-only
 release check across validation, scorecard, growth queue, and context-pack diff
 signals.
 
+See [Adapter readiness](docs/adapter-readiness.md) for checking a synthetic,
+cross-platform adapter profile without granting private runtime authority.
+
 ## Quick Start
 
 ```bash
@@ -73,6 +76,7 @@ monolith-core score --root examples/synthetic-vault --as-of 2026-06-11
 monolith-core growth-queue --queue examples/synthetic-vault/growth-ideas.json
 monolith-core repair-plan --root examples/synthetic-vault --as-of 2026-07-15
 monolith-core adapter-example --note examples/synthetic-vault/adapter-note.md
+monolith-core adapter-readiness --adapter examples/synthetic-vault/adapter-readiness.json
 monolith-core context-pack-diff --base examples/synthetic-vault/context-pack.json --candidate examples/synthetic-vault/context-pack-expanded.json
 monolith-core release-readiness --root examples/synthetic-vault --queue examples/synthetic-vault/growth-ideas.json --base-pack examples/synthetic-vault/context-pack.json --candidate-pack examples/synthetic-vault/context-pack-expanded.json --as-of 2026-06-12
 monolith-core curate-dry-run --root examples/synthetic-vault --out reports/curator-report.json

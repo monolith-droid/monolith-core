@@ -1,0 +1,25 @@
+{
+  "adapter_id": "adapter-synthetic-cross-platform",
+  "blockers": [],
+  "check_count": 5,
+  "checks": [
+    {"check_id": "adapter-check-synthetic-profile", "passed": true, "status": "passed"},
+    {"check_id": "adapter-check-report-only", "passed": true, "status": "passed"},
+    {"check_id": "adapter-check-cross-platform-lanes", "passed": true, "status": "passed"},
+    {"check_id": "adapter-check-private-boundary", "passed": true, "status": "passed"},
+    {"check_id": "adapter-check-downstream-return", "passed": true, "status": "passed"}
+  ],
+  "lane_count": 2,
+  "lane_ids": ["implementation", "operations"],
+  "mode": "report_only",
+  "mutation_performed": false,
+  "next_actions": [
+    "keep_private_adapter_details_out_of_public_artifacts",
+    "return_generalized_findings_as_public_issues_schemas_fixtures_or_tests"
+  ],
+  "passed": true,
+  "passed_check_count": 5,
+  "readiness_id": "adapter-readiness-synthetic-cross-platform",
+  "status": "adapter_readiness_ready",
+  "warnings": []
+}

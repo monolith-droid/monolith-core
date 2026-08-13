@@ -1,0 +1,40 @@
+{
+  "schema_version": "monolith.adapter-readiness.v1",
+  "adapter_id": "adapter-synthetic-blocked",
+  "summary": "Synthetic negative profile for private boundary regression coverage.",
+  "synthetic": true,
+  "mode": "report_only",
+  "mutation_performed": false,
+  "lanes": [
+    {
+      "lane_id": "implementation",
+      "platform_scope": "cross_platform",
+      "public_refs": ["../private-note.md"],
+      "capabilities": ["validate_contracts"],
+      "authority": {
+        "real_vault_access": false,
+        "external_services": false,
+        "scheduler": false,
+        "notifications": false,
+        "secrets": false
+      }
+    },
+    {
+      "lane_id": "operations",
+      "platform_scope": "cross_platform",
+      "public_refs": ["docs/adapter-boundary.md"],
+      "capabilities": ["report_side_effects_false"],
+      "authority": {
+        "real_vault_access": false,
+        "external_services": false,
+        "scheduler": true,
+        "notifications": false,
+        "secrets": false
+      }
+    }
+  ],
+  "downstream_return": {
+    "public_artifacts": ["test"],
+    "private_evidence_copied": false
+  }
+}
